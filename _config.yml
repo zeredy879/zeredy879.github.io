@@ -3,17 +3,17 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Mars Diary
+title: Mirror of Glory
 subtitle: ''
-description: ''
-keywords:
+description: 'Each hour has its colour, but colour exists only where there is light'
+keywords: 'Mantra of Ascent'
 author: zeredy879
 language: zh-CN
 timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: http://zeredy879.github.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
