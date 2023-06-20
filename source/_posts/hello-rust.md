@@ -47,7 +47,7 @@ void world::world::main(void)
   return;
 }
 ```
-终于理解了原来上周末我逆向的是个鬼，跑到std::rt::lang_start里看什么都没找到。不过用ghidra不会把namespace中的函数归类为function而是直接放在namespaces里，上周碌碌无为在函数里找了半天什么都没有，乐。
+终于理解了原来上周末我逆向的是个鬼，跑到std::rt::lang_start里看什么都没找到。不过用ghidra不会把namespace中的函数归类为function而是直接放在namespaces里，上周碌碌无为在funtion里找了半天什么都没有，乐。
 
 hello world字符串在new_const函数中被初始化：
 ```C
@@ -212,4 +212,4 @@ void world::world::main(void)
   return;
 }
 ```
-我有点难蚌，今天的逆向到此为止了。
+我有点难蚌，不过更让我难蚌的是encrypt函数的逆向，今天的逆向到此为止了。
