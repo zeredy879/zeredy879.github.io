@@ -9,8 +9,7 @@ keywords: rust, tutorial
 description: 在SCTF 2023中被rust pwn题虐哭...
 ---
 
-斜颚的出题人已经不满足于在re中添加go和rust的题目，在SCTF2023中更是把触手伸到了pwn题目。算是轻松地拿下ancient cgi后，直接被后续的rust pwn
-吓退，从此一蹶不振在pwn方向颗粒无收，流下了没有re基础的眼泪。最后被彪哥带飞到第五名。
+斜颚的出题人已经不满足于在re中添加go和rust的题目，在SCTF2023中更是把触手伸到了pwn题目。算是轻松地拿下ancient cgi后，直接被后续的rust pwn吓退，从此一蹶不振在pwn方向颗粒无收，流下了没有re基础的眼泪。最后被彪哥带飞到第五名。
 
 先从最简单的print hello world程序开始分析，这里用的rust源码很简单：
 ```rust
@@ -48,8 +47,7 @@ void world::world::main(void)
   return;
 }
 ```
-终于理解了原来上周末我逆向的是个鬼，跑到std::rt::lang_start里看什么都没找到。不过用ghidra不会把namespace中的函数
-归类为function而是直接放在namespaces里，上周碌碌无为在函数里找了半天什么都没有，乐。
+终于理解了原来上周末我逆向的是个鬼，跑到std::rt::lang_start里看什么都没找到。不过用ghidra不会把namespace中的函数归类为function而是直接放在namespaces里，上周碌碌无为在函数里找了半天什么都没有，乐。
 
 hello world字符串在new_const函数中被初始化：
 ```C
