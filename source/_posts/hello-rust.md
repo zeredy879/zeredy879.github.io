@@ -2,7 +2,7 @@
 title: Rust逆向初探
 date: 2023-06-20 17:49:49
 tags:
-  - untagged
+  - CTF
 categories:
   - reverse engineering
 keywords: rust, tutorial
