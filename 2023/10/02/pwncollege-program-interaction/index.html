@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"zeredy879.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="做完program-interaction后感觉自己变成了进程管理大师😅">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我是如何被pwn.college的program-interaction level139折磨一周的">
+<meta property="og:url" content="http://zeredy879.github.io/2023/10/02/pwncollege-program-interaction/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="做完program-interaction后感觉自己变成了进程管理大师😅">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-02T13:19:39.000Z">
+<meta property="article:modified_time" content="2023-10-05T14:37:33.443Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="diary">
+<meta property="article:tag" content="General">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://zeredy879.github.io/2023/10/02/pwncollege-program-interaction/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>我是如何被pwn.college的program-interaction level139折磨一周的 | Mirror of Glory</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Mirror of Glory</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2023/10/02/pwncollege-program-interaction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          我是如何被pwn.college的program-interaction level139折磨一周的
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-10-02 21:19:39" itemprop="dateCreated datePublished" datetime="2023-10-02T21:19:39+08:00">2023-10-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-10-05 22:37:33" itemprop="dateModified" datetime="2023-10-05T22:37:33+08:00">2023-10-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+                </span>
+            </span>
+
+          
+            <div class="post-description">做完program-interaction后感觉自己变成了进程管理大师😅</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a target="_blank" rel="noopener" href="https://pwn.college/">pwn.college</a>是ASU精心打造的网络安全公开课平台，其授课形式采取了CTF的方式，并且搭建在CTF平台CTFd上，很适合对pwn有兴趣的人<del>折磨自己</del>入门。Program Interaction属于pwn.college中基础模块的一部分，也能在<a target="_blank" rel="noopener" href="https://pwn.college/fundamentals/program-interaction">pwn.collge的dojos</a>找到。这一部分要求自学者能够熟练的使用各种编程语言完成进程间通信，语言包括不仅限于：C、Python、Shell和ipython等，共有142个挑战。接下来我会描述通过数最低的挑战之一，也就是level139，其解决过程中遇到的不计其数的坑。</p>
+<h1 id="Challenge-–-level139"><a href="#Challenge-–-level139" class="headerlink" title="Challenge – level139"></a>Challenge – level139</h1><p>在开始之前，我先简单描述一下level139要求我们做的事情，以下是直接运行<code>/challenge/embryoio_level139</code>得到的挑战描述：</p>
+<blockquote>
+<p>- the challenge checks for a specific parent process : binary<br>- the challenge checks for a specific process at the other end of stdin : cat<br>- the challenge checks for a specific process at the other end of stdout : cat<br>- the challenge will force the parent process to solve a number of arithmetic problems : 50<br>- the challenge will use the following arithmetic operations in its arithmetic problems : +*&amp;^%|<br>- the complexity (in terms of nested expressions) of the arithmetic problems : 5</p>
+</blockquote>
+<p>其大意是：</p>
+<ol>
+<li><code>/challenge/embryoio_level139</code>的父进程为二进制程序</li>
+<li><code>/challenge/embryoio_level139</code>的标准输入为<code>cat</code>程序</li>
+<li><code>/challenge/embryoio_level139</code>的标准输出为<code>cat</code>程序</li>
+<li><code>/challenge/embryoio_level139</code>会陆续生成单个算数表达式，你需要计算当前算数表达式并将答案写入标准输入以获得下一个表达式，完成50次即达成目标</li>
+</ol>
+<p>说Linux话就是，我们需要写一个程序来模拟<code>cat | /challenge/embryoio_level139 | cat</code>这样的命令行，并且<code>/challenge/embryoio_level139</code>的父进程应当是一个二进制程序。</p>
+<h1 id="Bypass"><a href="#Bypass" class="headerlink" title="Bypass"></a>Bypass</h1><p>写过简单的脚本语言的大部分人都不太希望在所有场景下都用最原始的C去完成功能，对于这一挑战也是如此。如果采用朴素的思维，那么这一题的解决方式应当是，用编译型语言完成上述所有功能然后将其编译为二进制文件，包括完成算数表达式的解析运算以及程序的IO。好在我们在这里可以使用一点技巧，只需要做一点简单的包装就可以绕过对程序父进程的检查：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">pwncollege</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> pid = fork();</span><br><span class="line">    <span class="keyword">if</span> (pid == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        execve(<span class="string">&quot;/challenge/embryoio_level139&quot;</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        waitpid(pid, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    pwncollege();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意我们不能直接<code>execve</code>这一challenge，因为<code>execve</code>的逻辑是替换当前进程而不是产生一个子进程，而Linux中所有的子进程创建都依赖于<code>fork</code>系统调用，这里我就不再细述。但如果有人通过搜索引擎看到这篇博客，我估计也没人会对这一部分有疑问，毕竟在前面的challenges中这一技巧已经被玩烂了…</p>
+<h1 id="Pain-–-苦痛的开始"><a href="#Pain-–-苦痛的开始" class="headerlink" title="Pain – 苦痛的开始"></a>Pain – 苦痛的开始</h1><p>根据过去的经验我很快开始了脚本的编写，之前的138个level已经让我遭受了巨量的毒打，但没想到这里还是棋差一着：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&quot;debug&quot;</span></span><br><span class="line"></span><br><span class="line">r1, w1 = os.pipe()</span><br><span class="line">r2, w2 = os.pipe()</span><br><span class="line">r = process([<span class="string">&quot;cat&quot;</span>], stdout=w1)</span><br><span class="line">w = process([<span class="string">&quot;cat&quot;</span>], stdin=r2)</span><br><span class="line">p = process([<span class="string">&quot;./a.out&quot;</span>], stdin=r1, stdout=w2)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">50</span>):</span><br><span class="line">    w.recvuntil(<span class="string">b&quot;solution for: &quot;</span>)</span><br><span class="line">    expr = w.recvline()[:-<span class="number">1</span>].decode()</span><br><span class="line">    success(expr)</span><br><span class="line">    res = <span class="built_in">eval</span>(expr)</span><br><span class="line">    success(res)</span><br><span class="line">    r.sendline(<span class="built_in">str</span>(res).encode())</span><br><span class="line"></span><br><span class="line">w.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><code>./a.out</code>是在上一节叙述过用于绕过父进程检查的程序，上述脚本的逻辑易于理解：创建两个管道用于目标进程的stdin与stdio重定向，并且读取50个表达式。但实际运行后我收到了折磨我近一周的报错：</p>
+<blockquote>
+<p>[FAIL]    Executable must be ‘cat’. Yours is: python3.8</p>
+</blockquote>
+<p>这怎么看都像是<code>pwn.process</code>的问题，因此我尝试了不同的进程创建方式：<code>subprocess.run</code>，<code>subprocess.Popen</code>，但最后都病情稳定：<code>Yours is: python3.8</code>！我开始变得焦躁以及感受到备受折磨，并且开始逃避level139，有一种阴影笼罩在我的脑海中：用Python是解决不了问题的，对level139使用Golang&#x2F;C吧！</p>
+<h1 id="Bugshooting-–-The-Real-‘python3-8’"><a href="#Bugshooting-–-The-Real-‘python3-8’" class="headerlink" title="Bugshooting – The Real ‘python3.8’"></a>Bugshooting – The Real ‘python3.8’</h1><p>痛定思痛后，我决定找出问题的根源。<code>/challenge/embryoio_level139</code>虽然是一个ELF格式的可执行文件，但事实上是由python脚本完成的大部分功能（或许使用了Pyinstaller之类的打包工具？），同目录下的<code>checker.py</code>即为所有完成challenge功能的源程序。我提取出了必要的部分以在本地完成bug的复现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> psutil</span><br><span class="line"><span class="keyword">import</span> shutil</span><br><span class="line"></span><br><span class="line">SELF = psutil.Process(os.getpid())</span><br><span class="line">PARENT = SELF.parent()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">r1, w1 = os.pipe()</span><br><span class="line">r2, w2 = os.pipe()</span><br><span class="line">cat1 = process(<span class="string">&quot;cat&quot;</span>, stdout=w1)</span><br><span class="line">cat2 = process(<span class="string">&quot;cat&quot;</span>, stdin=r2)</span><br><span class="line">ps = process([<span class="string">&quot;bash&quot;</span>], stdin=r1, stdout=w2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">resolve_fd_path</span>(<span class="params">pid, fd</span>):</span><br><span class="line">    path = os.path.realpath(<span class="string">f&quot;/proc/<span class="subst">&#123;pid&#125;</span>/fd/<span class="subst">&#123;fd&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> path.startswith(<span class="string">f&quot;/proc/<span class="subst">&#123;pid&#125;</span>/fd/&quot;</span>):</span><br><span class="line">        <span class="comment"># fixup for sockets and pipes</span></span><br><span class="line">        path = os.path.basename(path)</span><br><span class="line">    <span class="keyword">return</span> path</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">resolve_fd_pipe_partner</span>(<span class="params">pid, fd, parent_ok=<span class="literal">False</span></span>):</span><br><span class="line">    our_pipe = resolve_fd_path(pid, fd)</span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> psutil.process_iter():</span><br><span class="line">        <span class="keyword">if</span> p == SELF:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">if</span> p.pid == PARENT.pid <span class="keyword">and</span> <span class="keyword">not</span> parent_ok:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">for</span> ofd <span class="keyword">in</span> os.listdir(<span class="string">f&quot;/proc/<span class="subst">&#123;p.pid&#125;</span>/fd&quot;</span>):</span><br><span class="line">                their_pipe = resolve_fd_path(p.pid, <span class="built_in">int</span>(ofd))</span><br><span class="line">                <span class="keyword">if</span> their_pipe == our_pipe:</span><br><span class="line">                    <span class="keyword">return</span> p.pid</span><br><span class="line">        <span class="keyword">except</span> PermissionError:</span><br><span class="line">            <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">check_exe_basename</span>(<span class="params">process: psutil.Process, basename</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[INFO] The process&#x27; executable is <span class="subst">&#123;process.exe()&#125;</span>.&quot;</span>)</span><br><span class="line">    actual_basename = os.path.basename(os.path.realpath(shutil.which(basename)))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[INFO] To pass the checks, the executable must be <span class="subst">&#123;actual_basename&#125;</span>.&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(process.exe())</span><br><span class="line">    <span class="keyword">assert</span> (</span><br><span class="line">        os.path.basename(process.exe()) == actual_basename</span><br><span class="line">    ), <span class="string">f&quot;Executable must be &#x27;<span class="subst">&#123;basename&#125;</span>&#x27;. Yours is: <span class="subst">&#123;os.path.basename(process.exe())&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ps_0_pid = resolve_fd_pipe_partner(ps.pid, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">ps_0 = psutil.Process(ps_0_pid)</span><br><span class="line"><span class="built_in">print</span>(ps_0.exe)</span><br><span class="line">check_exe_basename(ps_0, <span class="string">&quot;cat&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>resolve_fd_pipe_partner</code>会返回指定pid进程指定fd进程的pid，而<code>check_exe_basename</code>会检查进程的运行命令行是否与<code>basename</code>相同。这一示例程序中我进行了与challenge近乎完全相同的模拟，不同的是这里为了方便我把<code>/challenge/embryoio_level139</code>换成了<code>bash</code>。</p>
+<p>在进入更深层次的探索之前，我觉得这里有必要对我和读者都进行一次拷打。如果你是Linux用户，在终端中执行以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ls</span> -alh /proc/$$/fd</span></span><br><span class="line">总计 0</span><br><span class="line">dr-x------ 2 gardener gardener  4 Oct 1日 22:57 .</span><br><span class="line">dr-xr-xr-x 9 gardener gardener  0 Oct 1日 22:57 ..</span><br><span class="line">lrwx------ 1 gardener gardener 64 Oct 1日 22:57 0 -&gt; /dev/pts/5</span><br><span class="line">lrwx------ 1 gardener gardener 64 Oct 1日 22:57 1 -&gt; /dev/pts/5</span><br><span class="line">lrwx------ 1 gardener gardener 64 Oct 1日 22:57 2 -&gt; /dev/pts/5</span><br><span class="line">lrwx------ 1 gardener gardener 64 Oct 1日 22:57 255 -&gt; /dev/pts/5</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">tty</span></span></span><br><span class="line">/dev/pts/5</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">file /proc/$$/fd/0</span></span><br><span class="line">/proc/33643/fd/0: symbolic link to /dev/pts/5</span><br></pre></td></tr></table></figure>
+
+<p>我们都知道任何一个Linux进程都默认开启三个文件描述符：stdin，stdout以及stderr，分别对应0、1、2，这也是最特殊的文件描述符，因为他们相比其他的fd承担了进程IO的职能。<code>$$</code>用于获取当前终端的pid，我们可以看到，打开一个交互式的<code>bash terminal</code>，作为进程而言他的stdin，stdout以及stderr都只是一个指向<code>/dev/pts/5</code>的软链接，而<code>/dev/pts/5</code>，通过<code>tty</code>命令可以发现，正是当前进程<code>bash</code>处在的终端！我们平时看到的所谓stdin，stdout以及stderr用于IO的文件流，其本身也是文件，甚至只是简单的软链接，而这也是Linux&#x2F;Unix中一切皆文件哲学的体现。我第一次发现这一事实时有一种醍醐灌顶，又理所应当的感觉，这种时候才能切实体会到Linux中文件无所不在的事实。</p>
+<p>使用<code>bash</code>作为目标程序的情况下我们会得到以下输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pipe:[409388]</span><br><span class="line">&lt;bound method Process.exe of psutil.Process(pid=33220, name=&#x27;cat&#x27;, status=&#x27;sleeping&#x27;, started=&#x27;22:53:17&#x27;)&gt;</span><br><span class="line">[INFO] The process&#x27; executable is /usr/bin/cat.</span><br><span class="line">[INFO] To pass the checks, the executable must be cat.</span><br><span class="line">/usr/bin/cat</span><br></pre></td></tr></table></figure>
+
+<p>这似乎并没有什么问题，甚至没有报错。但如果把<code>bash</code>换成<code>ls</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;bound method Process.exe of psutil.Process(pid=36010, name=&#x27;python&#x27;, status=&#x27;running&#x27;, started=&#x27;23:17:48&#x27;)&gt;</span><br><span class="line">[INFO] The process&#x27; executable is /usr/bin/python3.11.</span><br><span class="line">[INFO] To pass the checks, the executable must be cat.</span><br><span class="line">/usr/bin/python3.11</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/home/gardener/Play/fun.py&quot;, line 56, in &lt;module&gt;</span><br><span class="line">    check_exe_basename(ps_0, &quot;cat&quot;)</span><br><span class="line">  File &quot;/home/gardener/Play/fun.py&quot;, line 48, in check_exe_basename</span><br><span class="line">    os.path.basename(process.exe()) == actual_basename</span><br><span class="line">AssertionError: Executable must be &#x27;cat&#x27;. Yours is: python3.11</span><br></pre></td></tr></table></figure>
+
+<p>！！这正是与原始脚本运行时一模一样的报错！！进一步溯源，我们能发现造成这一错误的根源是<code>ps_0_pid = resolve_fd_pipe_partner(ps.pid, 0)</code>并没有返回我们想要的<code>cat</code>进程的pid，而是None。<code>psutil.Process</code>在参数为空时会选择当前进程，也就是python脚本本身的pid作为参数创建Process：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_init</span>(<span class="params">self, pid, _ignore_nsp=<span class="literal">False</span></span>):</span><br><span class="line">    <span class="keyword">if</span> pid <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        pid = os.getpid()</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，<code>resolve_fd_pipe_partner</code>什么都没有找到，没有任何返回值。但同样的情况在<code>bash</code>中不会发生，<code>bash</code>和<code>ls</code>最大的区别在哪里呢？从IO的角度分析，我们可以在<code>bash</code>中运行各种各样的命令行程序，而<code>ls</code>一运行就会很快结束。我们知道Linux中用管道串起来的进程不会顺序运行，而是并行的运行，在<code>ls</code>很快的运行完成后，<code>ls</code>进程很快关闭，而我们甚至无法在<code>psutil.process_iter()</code>中找到这一进程，那么对应的fd更不可能知道了。</p>
+<h1 id="Solution-–-Close-the-pipe"><a href="#Solution-–-Close-the-pipe" class="headerlink" title="Solution – Close the pipe!"></a>Solution – Close the pipe!</h1><p>这位前辈的<a target="_blank" rel="noopener" href="https://github.com/Cipher731/pwn_college_writeup/blob/main/1.interaction/embryoio_level139.py">writeup</a>给了我启发，我们的脚本并没有太大的差别，细微的差别在于：他关闭了所有管道的fd。在stackoverflow上关于python subprocess管道有这样一个显眼的问题：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/23074705/usage-of-stdout-close-in-pythons-subprocess-module-when-piping">Usage of stdout.close() in python’s subprocess module when piping</a>，这件事其实相当费解，为什么创建管道并且建立重定向后必须关闭呢？需要注意的是，调用<code>os.close()</code>的主体并不是子进程而是主进程，关闭管道fd的目的是在管道右端的进程退出后，管道左端的进程能意识到stdout已经被关闭，无需再传输数据。</p>
+<p>虽然对管道理解的还不够，但已经足以解决问题了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&quot;debug&quot;</span></span><br><span class="line"></span><br><span class="line">r1, w1 = os.pipe()</span><br><span class="line">r2, w2 = os.pipe()</span><br><span class="line">r = process([<span class="string">&quot;cat&quot;</span>], stdout=w1)</span><br><span class="line">w = process([<span class="string">&quot;cat&quot;</span>], stdin=r2)</span><br><span class="line">p = process([<span class="string">&quot;./a.out&quot;</span>], stdin=r1, stdout=w2)</span><br><span class="line">os.close(r1)</span><br><span class="line">os.close(w1)</span><br><span class="line">os.close(r2)</span><br><span class="line">os.close(w2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">50</span>):</span><br><span class="line">    w.recvuntil(<span class="string">b&quot;solution for: &quot;</span>)</span><br><span class="line">    expr = w.recvline()[:-<span class="number">1</span>].decode()</span><br><span class="line">    success(expr)</span><br><span class="line">    res = <span class="built_in">eval</span>(expr)</span><br><span class="line">    success(res)</span><br><span class="line">    r.sendline(<span class="built_in">str</span>(res).encode())</span><br><span class="line"></span><br><span class="line">w.interactive()</span><br></pre></td></tr></table></figure>
+
+<h1 id="In-the-end"><a href="#In-the-end" class="headerlink" title="In the end"></a>In the end</h1><p>Fxxkyou Shellphish!!!</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/diary/" rel="tag"># diary</a>
+              <a href="/tags/General/" rel="tag"># General</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/09/26/SUB-encoder-analysis/" rel="prev" title="Metasploit SUB Encoder Analysis">
+      <i class="fa fa-chevron-left"></i> Metasploit SUB Encoder Analysis
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Challenge-%E2%80%93-level139"><span class="nav-number">1.</span> <span class="nav-text">Challenge – level139</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bypass"><span class="nav-number">2.</span> <span class="nav-text">Bypass</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pain-%E2%80%93-%E8%8B%A6%E7%97%9B%E7%9A%84%E5%BC%80%E5%A7%8B"><span class="nav-number">3.</span> <span class="nav-text">Pain – 苦痛的开始</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bugshooting-%E2%80%93-The-Real-%E2%80%98python3-8%E2%80%99"><span class="nav-number">4.</span> <span class="nav-text">Bugshooting – The Real ‘python3.8’</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Solution-%E2%80%93-Close-the-pipe"><span class="nav-number">5.</span> <span class="nav-text">Solution – Close the pipe!</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#In-the-end"><span class="nav-number">6.</span> <span class="nav-text">In the end</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zeredy879</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
