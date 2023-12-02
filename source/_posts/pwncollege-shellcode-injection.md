@@ -6,6 +6,7 @@ tags:
 categories:
   - pwn
 description: pwn.college shellcode injection总结与题解
+password: shellshock
 ---
 
 简单总结下从pwn.college shellcode injection里学到和巩固的一些知识。
