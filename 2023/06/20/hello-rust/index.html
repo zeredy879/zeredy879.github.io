@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在SCTF 2023中被rust pwn题虐哭...">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Rust逆向初探">
+<meta property="og:url" content="http://zeredy879.github.io/2023/06/20/hello-rust/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="在SCTF 2023中被rust pwn题虐哭...">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-20T09:49:49.000Z">
+<meta property="article:modified_time" content="2024-03-29T02:33:11.742Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://zeredy879.github.io/2023/06/20/hello-rust/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://zeredy879.github.io/2023/06/20/hello-rust/","path":"2023/06/20/hello-rust/","title":"Rust逆向初探"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Rust逆向初探 | Mirror of Glory</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Mirror of Glory</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2023/06/20/hello-rust/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Rust逆向初探 | Mirror of Glory">
+      <meta itemprop="description" content="在SCTF 2023中被rust pwn题虐哭...">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Rust逆向初探
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-20 17:49:49" itemprop="dateCreated datePublished" datetime="2023-06-20T17:49:49+08:00">2023-06-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-03-29 10:33:11" itemprop="dateModified" datetime="2024-03-29T10:33:11+08:00">2024-03-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/reverse-engineering/" itemprop="url" rel="index"><span itemprop="name">reverse engineering</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">在SCTF 2023中被rust pwn题虐哭...</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>斜颚的出题人已经不满足于在re中添加go和rust的题目，在SCTF2023中更是把触手伸到了pwn题目。算是轻松地拿下ancient cgi后，直接被后续的rust pwn吓退，从此一蹶不振在pwn方向颗粒无收，流下了没有re基础的眼泪。最后被彪哥带飞到第五名。</p>
+<p>先从最简单的print hello world程序开始分析，这里用的rust源码很简单：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;Hello, world!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在target&#x2F;debug中生成了二进制文件，checksec一下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">zyd@Dori:~/ctf/world/target/debug$ checksec ./world </span><br><span class="line">[*] &#x27;/home/zyd/ctf/world/target/debug/world&#x27;</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Full RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
+<p>很有武德，除了canary默认全开，接下来直接上ghidra：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> param_1,u8 **param_2)</span></span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">std</span>::rt::lang_start&lt;()&gt;(world::world::main,(<span class="type">long</span>)param_1,param_2,<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> world::world::main(<span class="type">void</span>)</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &amp;[&amp;str] in_stack_ffffffffffffffc8;</span><br><span class="line">  </span><br><span class="line">  core::fmt::Arguments::new_const((Arguments *)&amp;stack0xffffffffffffffd0,in_stack_ffffffffffffffc8);</span><br><span class="line">  <span class="built_in">std</span>::io::stdio::_print(&amp;stack0xffffffffffffffd0);</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>终于理解了原来上周末我逆向的是个鬼，跑到std::rt::lang_start里看什么都没找到。不过用ghidra不会把namespace中的函数归类为function而是直接放在namespaces里，上周碌碌无为在funtion里找了半天什么都没有，乐。</p>
+<p>hello world字符串在new_const函数中被初始化：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Arguments * core::fmt::Arguments::new_const(Arguments *__return_storage_ptr__,&amp;[&amp;str] pieces)</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  ulong in_RDX;</span><br><span class="line">  &amp;str *in_RSI;</span><br><span class="line">  Arguments *__return_storage_ptr___00;</span><br><span class="line">  Arguments local_50;</span><br><span class="line">  undefined8 local_18;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (in_RDX &lt; <span class="number">2</span>) &#123;</span><br><span class="line">    (__return_storage_ptr__-&gt;pieces).data_ptr = in_RSI;</span><br><span class="line">    (__return_storage_ptr__-&gt;pieces).length = in_RDX;</span><br><span class="line">    *(undefined8 *)&amp;__return_storage_ptr__-&gt;fmt = <span class="number">0</span>;</span><br><span class="line">    *(undefined8 *)&amp;(__return_storage_ptr__-&gt;fmt).field_0x8 = local_18;</span><br><span class="line">    (__return_storage_ptr__-&gt;args).data_ptr = (ArgumentV1 *)<span class="string">&quot;Hello, world!\n&quot;</span>;</span><br><span class="line">    (__return_storage_ptr__-&gt;args).length = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> __return_storage_ptr__;</span><br><span class="line">  &#125;</span><br><span class="line">  __return_storage_ptr___00 = &amp;local_50;</span><br><span class="line">  new_const(__return_storage_ptr___00,(&amp;[&amp;str])CONCAT88(in_RDX,__return_storage_ptr___00));</span><br><span class="line">                    <span class="comment">/* WARNING: Subroutine does not return */</span></span><br><span class="line">  panicking::panic_fmt(__return_storage_ptr___00,&amp;DAT_0014c308);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来做一点稍微复杂的操作，看看二进制文件逆向结果又会怎么样。简简单单找了个Caesar Cipher：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">fn</span> <span class="title function_">encrypt</span>(msg: &amp;<span class="type">str</span>, shift: <span class="type">u32</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">alphabet_upper</span>: &amp;<span class="type">str</span> = <span class="string">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">alphabet_lower</span>: &amp;<span class="type">str</span> = <span class="string">&quot;abcdefghijklmnopqrstuvwxyz&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut </span><span class="variable">result</span>: <span class="type">String</span> = <span class="type">String</span>::<span class="title function_ invoke__">new</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> <span class="variable">c</span> <span class="keyword">in</span> msg.<span class="title function_ invoke__">chars</span>() &#123;</span><br><span class="line">        <span class="keyword">if</span> c.<span class="title function_ invoke__">is_whitespace</span>() &#123;</span><br><span class="line">            result.<span class="title function_ invoke__">push</span>(c);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> shift &gt;= <span class="number">26</span> &#123;</span><br><span class="line">            <span class="built_in">panic!</span>(<span class="string">&quot;Please specify a smaller shift.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> c.<span class="title function_ invoke__">is_uppercase</span>() &#123;</span><br><span class="line">            <span class="keyword">match</span> alphabet_upper.<span class="title function_ invoke__">chars</span>().<span class="title function_ invoke__">position</span>(|b| c == b) &#123;</span><br><span class="line">                <span class="title function_ invoke__">Some</span>(x) =&gt; &#123;</span><br><span class="line">                    <span class="keyword">let</span> <span class="variable">idx</span>: <span class="type">usize</span> = shift <span class="keyword">as</span> <span class="type">usize</span> + x;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">let</span> <span class="variable">new_index</span> = <span class="keyword">if</span> (idx <span class="keyword">as</span> <span class="type">u32</span>) &gt;= <span class="number">26u32</span> &#123;</span><br><span class="line">                        idx - <span class="number">26usize</span></span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        idx</span><br><span class="line">                    &#125;;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">match</span> alphabet_upper.<span class="title function_ invoke__">chars</span>().<span class="title function_ invoke__">nth</span>(new_index) &#123;</span><br><span class="line">                        <span class="title function_ invoke__">Some</span>(x) =&gt; &#123;</span><br><span class="line">                            result.<span class="title function_ invoke__">push</span>(x);</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="literal">None</span> =&gt; &#123;</span><br><span class="line">                            <span class="built_in">panic!</span>(<span class="string">&quot;No element could be found at index &#123;&#125;.&quot;</span>, new_index);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="literal">None</span> =&gt; &#123;</span><br><span class="line">                    <span class="built_in">panic!</span>(<span class="string">&quot;&#x27;&#123;&#125;&#x27; is not a valid element in the alphabet.&quot;</span>, c);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">match</span> alphabet_lower.<span class="title function_ invoke__">chars</span>().<span class="title function_ invoke__">position</span>(|b| c == b) &#123;</span><br><span class="line">                <span class="title function_ invoke__">Some</span>(x) =&gt; &#123;</span><br><span class="line">                    <span class="keyword">let</span> <span class="variable">idx</span>: <span class="type">usize</span> = shift <span class="keyword">as</span> <span class="type">usize</span> + x;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">let</span> <span class="variable">new_index</span> = <span class="keyword">if</span> (idx <span class="keyword">as</span> <span class="type">u32</span>) &gt;= <span class="number">26u32</span> &#123;</span><br><span class="line">                        idx - <span class="number">26usize</span></span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        idx</span><br><span class="line">                    &#125;;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">match</span> alphabet_lower.<span class="title function_ invoke__">chars</span>().<span class="title function_ invoke__">nth</span>(new_index) &#123;</span><br><span class="line">                        <span class="title function_ invoke__">Some</span>(x) =&gt; &#123;</span><br><span class="line">                            result.<span class="title function_ invoke__">push</span>(x);</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="literal">None</span> =&gt; &#123;</span><br><span class="line">                            <span class="built_in">panic!</span>(<span class="string">&quot;No element could be found at index &#123;&#125;&quot;</span>, new_index);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="literal">None</span> =&gt; &#123;</span><br><span class="line">                    <span class="built_in">panic!</span>(<span class="string">&quot;&#x27;&#123;&#125;&#x27; is not a valid element in the ASCII alphabet&quot;</span>, c);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">decrypt</span>(msg: &amp;<span class="type">str</span>, shift: <span class="type">u32</span>) <span class="punctuation">-&gt;</span> <span class="type">String</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_ invoke__">encrypt</span>(msg, <span class="number">26u32</span> - shift);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">fn</span> <span class="title function_">main</span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">msg</span>: &amp;<span class="type">str</span> = <span class="string">&quot;The quick brown fox jumped over the lazy dog&quot;</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">shift</span> = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">let</span> <span class="variable">encrypted</span>: <span class="type">String</span> = <span class="title function_ invoke__">encrypt</span>(msg, shift);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;\n in a shift of &#123;&#125; is:\n&#123;&#125;&quot;</span>, msg, shift, encrypted);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">&quot;&#123;&#125;\n is\n&#123;&#125;&quot;</span>, encrypted, <span class="title function_ invoke__">decrypt</span>(&amp;encrypted, shift));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到现在的main已经惨不忍睹了😅：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> world::world::main(<span class="type">void</span>)</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &amp;str &amp;Var1;</span><br><span class="line">  undefined8 in_stack_fffffffffffffe68;</span><br><span class="line">  undefined8 in_stack_fffffffffffffe70;</span><br><span class="line">  undefined8 in_stack_fffffffffffffe78;</span><br><span class="line">  undefined8 in_stack_fffffffffffffe80;</span><br><span class="line">  &amp;str local_108;</span><br><span class="line">  u32 local_f4;</span><br><span class="line">  String local_f0;</span><br><span class="line">  Arguments local_d8;</span><br><span class="line">  ArgumentV1 local_a8;</span><br><span class="line">  ArgumentV1 local_98;</span><br><span class="line">  ArgumentV1 local_88;</span><br><span class="line">  Arguments local_78;</span><br><span class="line">  &amp;[core::fmt::ArgumentV1] local_48;</span><br><span class="line">  ArgumentV1 local_38;</span><br><span class="line">  String local_28;</span><br><span class="line">  </span><br><span class="line">  local_108.data_ptr = (u8 *)<span class="number">0x1422ed</span>;</span><br><span class="line">  local_108.length = <span class="number">0x2c</span>;</span><br><span class="line">  local_f4 = <span class="number">2</span>;</span><br><span class="line">  encrypt(&amp;local_f0,(&amp;str)CONCAT88(in_stack_fffffffffffffe70,in_stack_fffffffffffffe68),<span class="number">0x1422ed</span>);</span><br><span class="line">                    <span class="comment">/* try &#123; // try from 0010b586 to 0010b592 has its CatchHandler @ 0010b5b7 */</span></span><br><span class="line">  local_a8 = core::fmt::ArgumentV1::new_display&lt;&amp;str&gt;(&amp;local_108);</span><br><span class="line">                    <span class="comment">/* try &#123; // try from 0010b5e7 to 0010b71a has its CatchHandler @ 0010b5b7 */</span></span><br><span class="line">  local_98 = core::fmt::ArgumentV1::new_display&lt;u32&gt;(&amp;local_f4);</span><br><span class="line">  local_88 = core::fmt::ArgumentV1::new_display&lt;alloc::<span class="built_in">string</span>::String&gt;(&amp;local_f0);</span><br><span class="line">  core::fmt::Arguments::new_v1</span><br><span class="line">            (&amp;local_d8,(&amp;[&amp;str])CONCAT88(in_stack_fffffffffffffe70,in_stack_fffffffffffffe68),</span><br><span class="line">             (&amp;[core::fmt::ArgumentV1])CONCAT88(in_stack_fffffffffffffe80,in_stack_fffffffffffffe78)</span><br><span class="line">            );</span><br><span class="line">  <span class="built_in">std</span>::io::stdio::_print(&amp;local_d8);</span><br><span class="line">  local_48 = (&amp;[core::fmt::ArgumentV1])</span><br><span class="line">             core::fmt::ArgumentV1::new_display&lt;alloc::<span class="built_in">string</span>::String&gt;(&amp;local_f0);</span><br><span class="line">  &amp;Var1 = alloc::<span class="built_in">string</span>::&#123;impl#<span class="number">38</span>&#125;::deref(&amp;local_f0);</span><br><span class="line">  decrypt(&amp;local_28,(&amp;str)CONCAT88(in_stack_fffffffffffffe70,in_stack_fffffffffffffe68),</span><br><span class="line">          SUB164((undefined  [<span class="number">16</span>])&amp;Var1,<span class="number">0</span>));</span><br><span class="line">                    <span class="comment">/* try &#123; // try from 0010b71d to 0010b729 has its CatchHandler @ 0010b747 */</span></span><br><span class="line">  local_38 = core::fmt::ArgumentV1::new_display&lt;alloc::<span class="built_in">string</span>::String&gt;(&amp;local_28);</span><br><span class="line">                    <span class="comment">/* try &#123; // try from 0010b790 to 0010b7c9 has its CatchHandler @ 0010b747 */</span></span><br><span class="line">  core::fmt::Arguments::new_v1</span><br><span class="line">            (&amp;local_78,</span><br><span class="line">             (&amp;[&amp;str])CONCAT88(SUB168((undefined  [<span class="number">16</span>])local_38,<span class="number">0</span>),</span><br><span class="line">                               SUB168((undefined  [<span class="number">16</span>])local_38,<span class="number">8</span>)),local_48);</span><br><span class="line">  <span class="built_in">std</span>::io::stdio::_print(&amp;local_78);</span><br><span class="line">                    <span class="comment">/* try &#123; // try from 0010b7cc to 0010b7d8 has its CatchHandler @ 0010b5b7 */</span></span><br><span class="line">  core::ptr::drop_in_place&lt;alloc::<span class="built_in">string</span>::String&gt;(&amp;local_28);</span><br><span class="line">  core::ptr::drop_in_place&lt;alloc::<span class="built_in">string</span>::String&gt;(&amp;local_f0);</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我有点难蚌，不过更让我难蚌的是encrypt函数的逆向，今天的逆向到此为止了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/05/24/how-to-debug-heap/" rel="prev" title="How to debug heap challenge in CTF?">
+                  <i class="fa fa-angle-left"></i> How to debug heap challenge in CTF?
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/08/15/rootkit-pwnablekr/" rel="next" title="pwnable.kr rootkit">
+                  pwnable.kr rootkit <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">zeredy879</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
