@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
     <meta name="description" content="做完program-interaction后感觉自己变成了进程管理大师😅">
 <meta property="og:type" content="article">
@@ -29,8 +29,8 @@
 <meta property="article:published_time" content="2023-10-02T13:19:39.000Z">
 <meta property="article:modified_time" content="2024-03-29T02:33:11.742Z">
 <meta property="article:author" content="zeredy879">
-<meta property="article:tag" content="General">
 <meta property="article:tag" content="diary">
+<meta property="article:tag" content="General">
 <meta name="twitter:card" content="summary">
 
 
@@ -64,6 +64,9 @@
       <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
   <div class="site-nav-toggle">
     <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
   </div>
 
@@ -84,6 +87,10 @@
 
 
 
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
 
 
 
@@ -247,10 +254,10 @@
 
 <p>我们都知道任何一个Linux进程都默认开启三个文件描述符：stdin，stdout以及stderr，分别对应0、1、2，这也是最特殊的文件描述符，因为他们相比其他的fd承担了进程IO的职能。<code>$$</code>用于获取当前终端的pid，我们可以看到，打开一个交互式的<code>bash terminal</code>，作为进程而言他的stdin，stdout以及stderr都只是一个指向<code>/dev/pts/5</code>的软链接，而<code>/dev/pts/5</code>，通过<code>tty</code>命令可以发现，正是当前进程<code>bash</code>处在的终端！我们平时看到的所谓stdin，stdout以及stderr用于IO的文件流，其本身也是文件，甚至只是简单的软链接，而这也是Linux&#x2F;Unix中一切皆文件哲学的体现。我第一次发现这一事实时有一种醍醐灌顶，又理所应当的感觉，这种时候才能切实体会到Linux中文件无所不在的事实。</p>
 <p>使用<code>bash</code>作为目标程序的情况下我们会得到以下输出：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pipe:[409388]</span><br><span class="line">&lt;bound method Process.exe of psutil.Process(pid=33220, name=&#x27;cat&#x27;, status=&#x27;sleeping&#x27;, started=&#x27;22:53:17&#x27;)&gt;</span><br><span class="line">[INFO] The process&#x27; executable is /usr/bin/cat.</span><br><span class="line">[INFO] To pass the checks, the executable must be cat.</span><br><span class="line">/usr/bin/cat</span><br></pre></td></tr></table></figure>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pipe:[<span class="number">409388</span>]</span><br><span class="line">&lt;bound <span class="keyword">method</span> <span class="title function_">Process</span>.<span class="title function_">exe</span> <span class="title function_">of</span> <span class="title function_">psutil</span>.<span class="title function_">Process</span><span class="params">(pid=33220, name=<span class="string">&#x27;cat&#x27;</span>, status=<span class="string">&#x27;sleeping&#x27;</span>, started=<span class="string">&#x27;22:53:17&#x27;</span>)</span>&gt;</span><br><span class="line">[<span class="title function_">INFO</span>] <span class="title function_">The</span> <span class="title function_">process</span>&#x27; <span class="title function_">executable</span> <span class="title function_">is</span> /<span class="title function_">usr</span>/<span class="title function_">bin</span>/<span class="title function_">cat</span>.</span><br><span class="line">[<span class="title function_">INFO</span>] <span class="title function_">To</span> <span class="title function_">pass</span> <span class="title function_">the</span> <span class="title function_">checks</span>, <span class="title function_">the</span> <span class="title function_">executable</span> <span class="title function_">must</span> <span class="title function_">be</span> <span class="title function_">cat</span>.</span><br><span class="line">/<span class="title function_">usr</span>/<span class="title function_">bin</span>/<span class="title function_">cat</span></span><br></pre></td></tr></table></figure>
 
 <p>这似乎并没有什么问题，甚至没有报错。但如果把<code>bash</code>换成<code>ls</code>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;bound method Process.exe of psutil.Process(pid=36010, name=&#x27;python&#x27;, status=&#x27;running&#x27;, started=&#x27;23:17:48&#x27;)&gt;</span><br><span class="line">[INFO] The process&#x27; executable is /usr/bin/python3.11.</span><br><span class="line">[INFO] To pass the checks, the executable must be cat.</span><br><span class="line">/usr/bin/python3.11</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/home/gardener/Play/fun.py&quot;, line 56, in &lt;module&gt;</span><br><span class="line">    check_exe_basename(ps_0, &quot;cat&quot;)</span><br><span class="line">  File &quot;/home/gardener/Play/fun.py&quot;, line 48, in check_exe_basename</span><br><span class="line">    os.path.basename(process.exe()) == actual_basename</span><br><span class="line">AssertionError: Executable must be &#x27;cat&#x27;. Yours is: python3.11</span><br></pre></td></tr></table></figure>
+<figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;bound method <span class="keyword">Process</span>.exe <span class="keyword">of</span> psutil.<span class="keyword">Process</span>(pid=<span class="number">36010</span>, name=<span class="symbol">&#x27;python</span>&#x27;, status=<span class="symbol">&#x27;running</span>&#x27;, started=&#x27;<span class="number">23</span>:<span class="number">17</span>:<span class="number">48</span>&#x27;)&gt;</span><br><span class="line">[INFO] The <span class="keyword">process</span>&#x27; executable <span class="keyword">is</span> /usr/bin/python3.<span class="number">11</span>.</span><br><span class="line">[INFO] <span class="keyword">To</span> pass the checks, the executable must be cat.</span><br><span class="line">/usr/bin/python3.<span class="number">11</span></span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  <span class="keyword">File</span> <span class="string">&quot;/home/gardener/Play/fun.py&quot;</span>, <span class="literal">line</span> <span class="number">56</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    check_exe_basename(ps_0, <span class="string">&quot;cat&quot;</span>)</span><br><span class="line">  <span class="keyword">File</span> <span class="string">&quot;/home/gardener/Play/fun.py&quot;</span>, <span class="literal">line</span> <span class="number">48</span>, <span class="keyword">in</span> check_exe_basename</span><br><span class="line">    os.path.basename(<span class="keyword">process</span>.exe()) == actual_basename</span><br><span class="line">AssertionError: Executable must be <span class="symbol">&#x27;cat</span>&#x27;. Yours <span class="keyword">is</span>: python3.<span class="number">11</span></span><br></pre></td></tr></table></figure>
 
 <p>！！这正是与原始脚本运行时一模一样的报错！！进一步溯源，我们能发现造成这一错误的根源是<code>ps_0_pid = resolve_fd_pipe_partner(ps.pid, 0)</code>并没有返回我们想要的<code>cat</code>进程的pid，而是None。<code>psutil.Process</code>在参数为空时会选择当前进程，也就是python脚本本身的pid作为参数创建Process：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_init</span>(<span class="params">self, pid, _ignore_nsp=<span class="literal">False</span></span>):</span><br><span class="line">    <span class="keyword">if</span> pid <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        pid = os.getpid()</span><br></pre></td></tr></table></figure>
@@ -270,8 +277,8 @@
 
     <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/General/" rel="tag"># General</a>
               <a href="/tags/diary/" rel="tag"># diary</a>
+              <a href="/tags/General/" rel="tag"># General</a>
           </div>
 
         
@@ -311,23 +318,19 @@
     </span>
     <span class="author" itemprop="copyrightHolder">zeredy879</span>
   </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
 
     </div>
   </footer>
 
   
-  <div class="toggle sidebar-toggle" role="button">
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-    <span class="toggle-line"></span>
-  </div>
-  <div class="sidebar-dimmer"></div>
   <div class="back-to-top" role="button" aria-label="返回顶部">
     <i class="fa fa-arrow-up fa-lg"></i>
     <span>0%</span>
   </div>
+
+  <a href="https://github.com/zeredy879" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
 
 <noscript>
   <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
@@ -336,7 +339,7 @@
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
-<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
 
   
 
