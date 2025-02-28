@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="pwnable.kr rootkit题解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwnable.kr rootkit">
+<meta property="og:url" content="http://zeredy879.github.io/2023/08/15/rootkit-pwnablekr/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="pwnable.kr rootkit题解">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-15T13:43:25.000Z">
+<meta property="article:modified_time" content="2025-02-28T12:57:09.478Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="pwnable.kr">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://zeredy879.github.io/2023/08/15/rootkit-pwnablekr/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://zeredy879.github.io/2023/08/15/rootkit-pwnablekr/","path":"2023/08/15/rootkit-pwnablekr/","title":"pwnable.kr rootkit"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>pwnable.kr rootkit | Mirror of Glory</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Mirror of Glory</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Mantra of Ascent</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%86%E5%90%91"><span class="nav-number">1.</span> <span class="nav-text">逆向</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3"><span class="nav-number">2.</span> <span class="nav-text">解决</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">3.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2023/08/15/rootkit-pwnablekr/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="pwnable.kr rootkit | Mirror of Glory">
+      <meta itemprop="description" content="pwnable.kr rootkit题解">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          pwnable.kr rootkit
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-08-15 21:43:25" itemprop="dateCreated datePublished" datetime="2023-08-15T21:43:25+08:00">2023-08-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-28 20:57:09" itemprop="dateModified" datetime="2025-02-28T20:57:09+08:00">2025-02-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">pwnable.kr rootkit题解</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>写这题之前我以为会需要很多rootkit的前置知识，但是做完之后发现并不需要，但还是要知道内核模块相关的知识即LKM，以及内核处理syscall的过程。</p>
+<h1 id="逆向"><a href="#逆向" class="headerlink" title="逆向"></a>逆向</h1><p>逆向是解决问题的第一步，我们首先需要明白这一题的rootkit究竟做了什么事情。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs C">undefined4 <span class="hljs-title function_">init_module</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br><br>&#123;<br>  <span class="hljs-type">int</span> iVar1;<br>  <br>  sct = <span class="hljs-number">0xc15fa020</span>;<br>  sys_open = _DAT_c15fa034;<br>  sys_openat = _DAT_c15fa4bc;<br>  sys_symlink = _DAT_c15fa16c;<br>  sys_symlinkat = _DAT_c15fa4e0;<br>  sys_link = _DAT_c15fa044;<br>  sys_linkat = _DAT_c15fa4dc;<br>  sys_rename = _DAT_c15fa0b8;<br>  sys_renameat = _DAT_c15fa4d8;<br>  wp();<br>  iVar1 = sct;<br>  *(code **)(sct + <span class="hljs-number">0x14</span>) = sys_open_hooked;<br>  *(code **)(iVar1 + <span class="hljs-number">0x49c</span>) = sys_openat_hooked;<br>  *(code **)(iVar1 + <span class="hljs-number">0x14c</span>) = sys_symlink_hooked;<br>  *(code **)(iVar1 + <span class="hljs-number">0x4c0</span>) = sys_symlinkat_hooked;<br>  *(code **)(iVar1 + <span class="hljs-number">0x24</span>) = sys_link_hooked;<br>  *(code **)(iVar1 + <span class="hljs-number">0x4bc</span>) = sys_linkat_hooked;<br>  *(code **)(iVar1 + <span class="hljs-number">0x98</span>) = sys_rename_hooked;<br>  *(code **)(iVar1 + <span class="hljs-number">0x4b8</span>) = sys_renameat_hooked;<br>  wp();<br>  *(undefined4 *)(__this_module._4_4_ + <span class="hljs-number">4</span>) = __this_module._8_4_;<br>  *(undefined4 *)__this_module._8_4_ = __this_module._4_4_;<br>  __this_module._4_4_ = <span class="hljs-number">0x105a4</span>;<br>  __this_module._8_4_ = <span class="hljs-number">0x105a4</span>;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>sct</code>即<code>system call table</code>，顾名思义，<code>system call table</code>把syscall ID映射到对应实现syscall的内核函数地址。内核在处理syscall时并不会直接去在内核中寻找对应实现syscall的内核函数，而是以<strong>系统调用号</strong>作为偏移，在系统调用表中索引实现syscall的内核函数地址。于是，使用最多也是最经典的rootkit方法就是劫持系统调用表，通过篡改系统调用表中存放的数据以劫持系统调用。Linux内核提供了简单的获取内核函数和符号地址的方法，简单的来说，当内核编译选项<code>CONFIG_KALLSYMS</code>开启时，内核会将符号地址存放在文件<code>/proc/kallsyms</code>中。需要注意的是，<code>rootkit.ko</code>直接使用了系统调用表的绝对地址<code>0xc15fa020</code>，但在如今大部分的Linux kernel中是行不通的，当KASLR选项开启时，内核函数的地址会在每次重启内核时发生变化。通过<code>uname -a</code>可以知道pwnable.kr上使用的内核大版本号为3.7，而KASLR这一特性在3.14后才被引入，所以直接使用系统调用表的绝对地址是可行的。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">$</span><span class="language-bash">~ <span class="hljs-built_in">cat</span> /proc/kallsyms | grep sys_call_table</span>  <br>c15fa020 R sys_call_table<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">~ <span class="hljs-built_in">cat</span> /proc/kallsyms | grep sys_open</span>  <br>c106c7c0 W compat_sys_open_by_handle_at  <br>c1158bc0 T do_sys_open  <br>c1158d70 T sys_open  <br>c1158db0 T sys_openat  <br>c11a37b0 T sys_open_by_handle_at  <br>c11b47d0 t proc_sys_open<br></code></pre></td></tr></table></figure>
+
+<p>在<code>kallsyms</code>可以找到一些重要的符号地址，比如<code>sys_call_table</code>和<code>sys_open</code>，其中<code>sys_open</code>就是内核中真正用于处理系统调用<code>open</code>的函数。取得系统调用表后，rootkit不能直接去修改表中对应系统调用的数据，还需要关闭写保护，关于写保护要细说起来就更麻烦了，这里简单的理解成开启内核内存的写权限就行。最终，通过在系统调用表对应位置写入hook函数<code>sys_xxx_hooked</code>以完成系统调用的hook。</p>
+<p>以<code>sys_open_hooked</code>举例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs C">undefined4 <span class="hljs-title function_">sys_open_hooked</span><span class="hljs-params">(undefined4 param_1,undefined4 param_2,undefined4 param_3)</span><br><br>&#123;<br>  <span class="hljs-type">char</span> *pcVar1;<br>  undefined4 uVar2;<br>  <span class="hljs-type">char</span> *in_stack_ffffffec;<br>  <span class="hljs-type">char</span> *in_stack_fffffff0;<br>  <br>  mcount();<br>  pcVar1 = <span class="hljs-built_in">strstr</span>(in_stack_ffffffec,in_stack_fffffff0);<br>  <span class="hljs-keyword">if</span> (pcVar1 == (<span class="hljs-type">char</span> *)<span class="hljs-number">0x0</span>) &#123;<br>    uVar2 = (*sys_open)(param_1,param_2,param_3);<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    printk(<span class="hljs-string">&quot;You will not see the flag...\n&quot;</span>);<br>    uVar2 = <span class="hljs-number">0xffffffff</span>;<br>  &#125;<br>  <span class="hljs-keyword">return</span> uVar2;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Ghidra和IDA反编译都看不到函数<code>strstr</code>的参数字符串<code>flag</code>，这是因为内核中传参的调用约定与用户态不同，汇编能看到<code>strstr</code>的两个参数分别放在寄存器<code>eax</code>和<code>edx</code>中。当open的参数含有<code>flag</code>子串时，<code>sys_open_hooked</code>会过滤掉这一系统调用不予处理，否则使用<code>sys_open</code>执向的函数，即原本用于处理系统调用open的内核函数<code>sys_open</code>。</p>
+<p>总结一下<code>rootkit.ko</code>做了以下几件事：</p>
+<ol>
+<li>保留原本处理系统调用的内核函数地址至符号<code>sys_xxx</code>中。</li>
+<li>将系统调用表中存放的相关函数地址更改为<code>sys_xxx_hooked</code>。</li>
+<li><code>sys_xxx_hooked</code>函数对原本系统调用的参数进行检查，若不包含<code>flag</code>子串则使用<code>sys_xxx</code>处理系统调用，否则过滤不予执行。</li>
+</ol>
+<h1 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h1><p>类比用户态pwn的一些技巧，很容易联想到劫持系统调用表的方式与修改GOT表类似。那么最直接的方法，直接还原系统调用表就可以了，即把我们需要的系统调用表中的<code>open</code>所存放的数据还原成<code>sys_open</code>的地址。其对应的kernel module代码也比较好写，我这里提供一份不完整的伪代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/init.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/module.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/kernel.h&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> ___NR_open_ 5</span><br><br><span class="hljs-type">static</span> <span class="hljs-type">int</span> __init <span class="hljs-title function_">antikit_init</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>	<span class="hljs-type">void</span>** sct = <span class="hljs-number">0xc15fa020</span>;<br>	<span class="hljs-type">void</span>*  sys_open = <span class="hljs-number">0xc1158d70</span>;<br>	wp();<br>	<span class="hljs-comment">// x86 write protection</span><br>	sct[___NR_open_] = sys_open;<br>	wp();<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-type">static</span> <span class="hljs-type">void</span> __exit <span class="hljs-title function_">antikit_exit</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>&#125;<br><br>module_init(antikit_init);<br>module_exit(antikit_exit);<br></code></pre></td></tr></table></figure>
+
+<p>麻烦之处在于需要找服务器对应版本的Linux Header去编译，所以我这里详细解释第二种方法，也是我主要参考的方式。</p>
+<p>既然编译kernel module很麻烦，那么直接修改原本的rootkit是否可行呢？答案是肯定的。分析一下系统调用被过滤掉的主要原因，即<code>sys_xxx_hooked</code>函数的被写入了系统调用表中，那么重写系统调用表就可以再次hook系统调用到正常的<code>sys_xxx</code>函数中去。</p>
+<p>那能联想到最朴素的一个思路就是，修改原本rootkit中的<code>sys_xxx_hooked</code>函数的汇编代码，或者把<code>flag</code>子串替换成无意义的字符串。除此之外，原本的rootkit已经存在于内核模块中，还需要把module name即<code>rootkit</code>替换成其他字符串：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;./rootkit&quot;</span>, <span class="hljs-string">&quot;rb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    rootkit = f.read()<br><br>antikit = (<br>    rootkit.replace(<span class="hljs-string">b&quot;\x75\x1d&quot;</span>, <span class="hljs-string">b&quot;\x90\x90&quot;</span>)<br>    .replace(<span class="hljs-string">b&quot;\x75\x24&quot;</span>, <span class="hljs-string">b&quot;\x90\x90&quot;</span>)<br>    .replace(<span class="hljs-string">b&quot;rootkit&quot;</span>, <span class="hljs-string">b&quot;antikit&quot;</span>)<br>)<br></code></pre></td></tr></table></figure>
+
+<p>我这里把<code>jnz</code>指令替换为两个<code>nop</code>，从而令控制流改变。这个过程还算简单，但直接放在服务器上跑是行不通的，我们需要再次分析<code>sys_xxx_hooked</code>的逻辑。再次<code>insmod</code>的过程的确改变了系统调用表中存放的地址，但<code>sys_xxx_hooked</code>使用的并不是内核内存中的真正用于处理系统调用的<code>sys_xxx</code>函数，而是从系统调用表中获得的函数地址！在系统启动时rootkit就被装载入内核中，此时内核系统调用表中存放的函数地址已经被替换为<code>sys_xxx_hooked</code>，仅仅替换子串再次加载module只会再次调用第一次rootkit装载时使用的<code>sys_xxx_hooked</code>，这条路似乎走向了瓶颈。</p>
+<p>再次仔细查看<code>init_module</code>的实现方式，我们需要注意到<code>sys_xxx_hooked</code>通过保存在<code>.bss</code>段的全局变量<code>sys_xxx</code>从系统调用表中获取对应的<code>sys_xxx</code>函数地址，注意这两者的区别，一个是全局变量，另一个是真正存放在内存中用于处理系统调用的内核函数地址。</p>
+<p>而全局变量<code>sys_xxx</code>，是通过如下方式赋值的：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs x86asm">                 undefined init_module()<br><span class="hljs-number">00010300</span>    <span class="hljs-number">55</span>      <span class="hljs-keyword">PUSH</span>        <span class="hljs-built_in">EBP</span><br><br><span class="hljs-number">00010301</span>    a1 <span class="hljs-number">34</span>   <span class="hljs-keyword">MOV</span>         <span class="hljs-built_in">EAX</span>,[DAT_c15fa034]<br>            a0 5f <br>            c1<br><br><span class="hljs-number">00010306</span>    <span class="hljs-number">89</span> e5   <span class="hljs-keyword">MOV</span>         <span class="hljs-built_in">EBP</span>,<span class="hljs-built_in">ESP</span><br>                                    <span class="hljs-number">004</span><br><span class="hljs-number">00010308</span>    c7 <span class="hljs-number">05</span>   <span class="hljs-keyword">MOV</span>         <span class="hljs-built_in">dword</span> <span class="hljs-built_in">ptr</span> [sct],<span class="hljs-number">0xc15fa020</span><br>            <span class="hljs-number">40</span> <span class="hljs-number">07</span> <br>            <span class="hljs-number">01</span> <span class="hljs-number">0</span>...<br><br><span class="hljs-number">00010312</span>    a3 3c   <span class="hljs-keyword">MOV</span>         [sys_open],<span class="hljs-built_in">EAX</span><br>            <span class="hljs-number">07</span> <span class="hljs-number">01</span> <br>            <span class="hljs-number">00</span><br></code></pre></td></tr></table></figure>
+
+<p>那么答案很简单了，只需要把<code>MOV EAX,[DAT_c15fa034]</code>这条命令修改为<code>MOV EAX, [ADDR OF sys_open]</code>，<code>sys_xxx_hooked</code>就会直接调用<code>sys_open</code>而不是第一个rootkit的<code>sys_open_hooked</code>。所以最终修改后的rootkit为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> base64 <span class="hljs-keyword">import</span> b64encode<br><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;./rootkit&quot;</span>, <span class="hljs-string">&quot;rb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    rootkit = f.read()<br><br>antikit = (<br>    rootkit.replace(<span class="hljs-string">b&quot;\x75\x1d&quot;</span>, <span class="hljs-string">b&quot;\x90\x90&quot;</span>)<br>    .replace(<span class="hljs-string">b&quot;\x75\x24&quot;</span>, <span class="hljs-string">b&quot;\x90\x90&quot;</span>)<br>    .replace(<span class="hljs-string">b&quot;\xa1\x34\xa0\x5f\xc1&quot;</span>, <span class="hljs-string">b&quot;\xb8\x70\x8d\x15\xc1&quot;</span>)<br>    .replace(<span class="hljs-string">b&quot;rootkit&quot;</span>, <span class="hljs-string">b&quot;antikit&quot;</span>)<br>)<br>antikit_b64 = b64encode(antikit)<br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;./antikit_b64&quot;</span>, <span class="hljs-string">&quot;wb&quot;</span>) <span class="hljs-keyword">as</span> f:<br>    f.write(antikit_b64)<br></code></pre></td></tr></table></figure>
+
+<p>服务器上不能直接传rawdata，所以大部分解决方式都使用了base64传输本地patch后的rootkit，我是用vi保存生成的base64编码，然后：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat antikit.base64 | base64 -d &gt; antikit.ko<br>insmod antikit.ko<br></code></pre></td></tr></table></figure>
+
+<p>这样就可以打开flag了，但flag格式不是纯文本，而是压缩文件，<code>tar xvf flag</code>就可以读到flag了。</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a target="_blank" rel="noopener" href="https://foxtrot-sq.medium.com/linux-rootkits-multiple-ways-to-hook-syscall-s-7001cc02a1e6">Linux Rootkits — Multiple ways to hook syscall(s)</a></li>
+<li><a target="_blank" rel="noopener" href="https://web.archive.org/web/20230308144822/https://0xax.gitbooks.io/linux-insides/content/SysCall/linux-syscall-2.html">How does the Linux kernel handle a system call</a></li>
+<li><a target="_blank" rel="noopener" href="https://aufarg.github.io/pwnablekr-rootkit-400.html">https://aufarg.github.io/pwnablekr-rootkit-400.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/System.map">System.map</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.daniloaz.com/en/differences-between-aslr-kaslr-and-karl/">Differences between ASLR, KASLR and KARL</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/pwnable-kr/" rel="tag"># pwnable.kr</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/06/20/hello-rust/" rel="prev" title="Rust逆向初探">
+                  <i class="fa fa-angle-left"></i> Rust逆向初探
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/09/26/SUB-encoder-analysis/" rel="next" title="Metasploit SUB Encoder Analysis">
+                  Metasploit SUB Encoder Analysis <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">zeredy879</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

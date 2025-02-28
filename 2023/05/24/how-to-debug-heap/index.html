@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Before start to learn pwning heap challenge, how do we debug binaries which needs different versions of glibc?">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to debug heap challenge in CTF?">
+<meta property="og:url" content="http://zeredy879.github.io/2023/05/24/how-to-debug-heap/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="Before start to learn pwning heap challenge, how do we debug binaries which needs different versions of glibc?">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-05-24T10:12:10.000Z">
+<meta property="article:modified_time" content="2025-02-28T12:57:09.458Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="heap">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://zeredy879.github.io/2023/05/24/how-to-debug-heap/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://zeredy879.github.io/2023/05/24/how-to-debug-heap/","path":"2023/05/24/how-to-debug-heap/","title":"How to debug heap challenge in CTF?"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>How to debug heap challenge in CTF? | Mirror of Glory</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Mirror of Glory</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Mantra of Ascent</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Use-the-%E2%80%98LD-PRELOAD%E2%80%99-environment-variable"><span class="nav-number">1.</span> <span class="nav-text">Use the ‘LD_PRELOAD’ environment variable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Use-patchelf-tool"><span class="nav-number">2.</span> <span class="nav-text">Use patchelf tool</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2023/05/24/how-to-debug-heap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="How to debug heap challenge in CTF? | Mirror of Glory">
+      <meta itemprop="description" content="Before start to learn pwning heap challenge, how do we debug binaries which needs different versions of glibc?">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          How to debug heap challenge in CTF?
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-05-24 18:12:10" itemprop="dateCreated datePublished" datetime="2023-05-24T18:12:10+08:00">2023-05-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-28 20:57:09" itemprop="dateModified" datetime="2025-02-28T20:57:09+08:00">2025-02-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/pwn/" itemprop="url" rel="index"><span itemprop="name">pwn</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">Before start to learn pwning heap challenge, how do we debug binaries which needs different versions of glibc?</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Every beginner who attempts to start heap challenge will face a problem, that is: different challenges require different libc and linkers, how to debug each binary on one machine with the same environment? Downloading virtual machine images with different versions of libc is a brute force method but still works, here I won’t discuss about this way and I will suggest two methods in the following content.</p>
+<h2 id="Use-the-‘LD-PRELOAD’-environment-variable"><a href="#Use-the-‘LD-PRELOAD’-environment-variable" class="headerlink" title="Use the ‘LD_PRELOAD’ environment variable"></a>Use the ‘LD_PRELOAD’ environment variable</h2><p>If you google some question like ‘how to debug with different version of libc’, you might get this <a target="_blank" rel="noopener" href="https://reverseengineering.stackexchange.com/questions/25998/debugging-an-older-version-of-libc">result</a>. Usually, a heap challenge with adequate information provides a libc file (end with .so) and a linker (start with ld). Below is a typical command line to run the bianry by this method:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">LD_PRELOAD=./libc-2.23.so<br>./ld-2.23.so ./heapchall<br></code></pre></td></tr></table></figure>
+
+<p>This method can be combined with pwntools to debug:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">r = process([<span class="hljs-string">&quot;./ld-2.23.so&quot;</span>, <span class="hljs-string">&quot;./heapchall&quot;</span>], env=&#123;<span class="hljs-string">&quot;LD_PRELOAD&quot;</span>: <span class="hljs-string">&quot;./libc-2.23.so&quot;</span>&#125;)<br>gdb.attach(r)<br></code></pre></td></tr></table></figure>
+
+<p>But the biggest problem is, the symbol table used in the executing process belongs to linker (<code>ld-2.23.so</code>), not the binary itself. A lot of information is lost during the debug process so I recommend the second method.</p>
+<h2 id="Use-patchelf-tool"><a href="#Use-patchelf-tool" class="headerlink" title="Use patchelf tool"></a>Use <code>patchelf</code> tool</h2><p><code>patchelf</code> is a tool to modify the ELF excutables and libraries. According to the manual of <code>patchelf</code>:</p>
+<blockquote>
+<p>It can change the dynamic loader (“ELF interpreter”) of ex‐ecutables and change the RPATH of executables and libraries.</p>
+</blockquote>
+<p>Easy to understand this sentence that <code>patchelf</code> can change a elf file’s linker (ELF interpreter) and a path contains all the necessary files to run a elf file (RPATH). We need to download the full RPATH from <a target="_blank" rel="noopener" href="https://github.com/matrix1001/glibc-all-in-one">glibc-all-in-one</a>, and I post a concrete example as below:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">patchelf --set-interpreter ./ld-2.23.so --set-rpath /path/to/glibc-all-in-one/libs/2.23-0ubuntu11.3_i386/ ./heapchall<br></code></pre></td></tr></table></figure>
+
+<p>Then we can debug the heap challenge without bothering libc issue.</p>
+<p>If we make the exploit works but don’t get shell, try the method below:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">patchelf --add-needed path/to/glibc-all-in-one/libs/2.23-0ubuntu11.3_i386/libc-2.23.so ./heapchall<br></code></pre></td></tr></table></figure>
+
+<p>Reference: <a target="_blank" rel="noopener" href="https://blog.wjhwjhn.com/archives/762/">https://blog.wjhwjhn.com/archives/762/</a><br>           <a target="_blank" rel="noopener" href="https://reverseengineering.stackexchange.com/questions/25998/debugging-an-older-version-of-libc">https://reverseengineering.stackexchange.com/questions/25998/debugging-an-older-version-of-libc</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+              <a href="/tags/heap/" rel="tag"># heap</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/03/29/picoctf2023writeup/" rel="prev" title="picoCTF2023 Writeup">
+                  <i class="fa fa-angle-left"></i> picoCTF2023 Writeup
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/06/20/hello-rust/" rel="next" title="Rust逆向初探">
+                  Rust逆向初探 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">zeredy879</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

